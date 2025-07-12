@@ -7,12 +7,300 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="manifest" href="./manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 20px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .time-input input {
+            width: 60px;
+            padding: 12px 8px;
+            background: #3a3a3a;
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            -moz-appearance: textfield;
+        }
+        
+        .time-input input::-webkit-outer-spin-button,
+        .time-input input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .time-label {
+            font-size: 16px;
+            color: #cccccc;
+        }
+        
+        button {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .calc-btn {
+            width: 100%;
+            padding: 16px;
+            background: #007aff;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .calc-btn:hover {
+            background: #0056cc;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #3a3a3a;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .result-info {
+            flex: 1;
+        }
+        
+        .result-label {
+            font-size: 16px;
+            color: #cccccc;
+            margin-bottom: 4px;
+        }
+        
+        .result-time {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .timer-btn {
+            padding: 12px 16px;
+            background: #007aff;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .timer-btn:hover {
+            background: #0056cc;
+        }
+        
+        .timer-icon {
+            font-size: 16px;
+        }
+        
+        /* Стили для экрана таймера */
+        .timer-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .timer-container {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .timer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: #007aff;
+            font-size: 16px;
+            padding: 8px;
+            margin-right: 16px;
+        }
+        
+        .timer-display {
+            font-size: 72px;
+            text-align: center;
+            margin: 24px 0;
+            font-weight: 700;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .timer-control-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .start-btn {
+            background: #007aff;
+            color: white;
+        }
+        
+        .start-btn:hover {
+            background: #0056cc;
+        }
+        
+        .reset-btn {
+            background: #3a3a3a;
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: #4a4a4a;
+        }
+        
+        .timer-progress {
+            height: 6px;
+            background: #3a3a3a;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #007aff;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+        
+        @media (max-width: 480px) {
+            .container, .timer-container {
+                padding: 16px;
+            }
+            
+            .timer-display {
+                font-size: 60px;
+            }
+            
+            .result-item {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+            
+            .timer-btn {
+                margin-left: 0;
+            }
+        }
+        
+        @media (prefers-color-scheme: light) {
+            body {
+                background: #f5f5f5;
+                color: #333;
+            }
+            
+            .container, .timer-container {
+                background: #ffffff;
+                color: #333;
+            }
+            
+            .time-input input {
+                background: #f0f0f0;
+                border-color: #ddd;
+                color: #333;
+            }
+            
+            .result-item {
+                background: #f0f0f0;
+            }
+            
+            .reset-btn {
+                background: #f0f0f0;
+                color: #333;
+            }
+            
+            .timer-screen {
+                background: #f5f5f5;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Калькулятор проявки</h1>
+        <h1>Калькулятор проявки плёнки</h1>
+        
         <div class="section">
             <span class="section-title">Базовое время:</span>
             <div class="time-input">
@@ -22,24 +310,334 @@
                 <span class="time-label">сек</span>
             </div>
         </div>
+        
+        <div class="section">
+            <span class="section-title">Коэффициент:</span>
+            <div class="time-input">
+                <input type="number" id="coefficient" min="0.1" step="0.01" value="1.33">
+            </div>
+        </div>
+        
+        <div class="section">
+            <span class="section-title">Количество ступеней:</span>
+            <div class="time-input">
+                <input type="number" id="steps" min="1" max="5" value="3">
+            </div>
+        </div>
+        
+        <button class="calc-btn" id="calculateBtn">Рассчитать</button>
+        
+        <div class="results" id="results" style="display: none;">
+            <div id="resultsContainer"></div>
+        </div>
     </div>
-    <script src="/script.js"></script>
+    
+    <!-- Экран таймера -->
+    <div id="timerScreen" class="timer-screen">
+        <div class="timer-container">
+            <div class="timer-header">
+                <button id="backButton" class="back-button">← Назад</button>
+                <h2 id="timerTitle">Таймер</h2>
+            </div>
+            <div class="timer-display" id="timerDisplay">0:00</div>
+            <div class="timer-controls">
+                <button id="startPauseButton" class="timer-control-btn start-btn">Старт</button>
+                <button id="resetButton" class="timer-control-btn reset-btn">Сброс</button>
+            </div>
+            <div class="timer-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
 
-    <div id="timerScreen" class="timer-screen" style="display: none;">
-    <div class="timer-container">
-        <div class="timer-header">
-            <button id="backButton" class="back-button">← Назад</button>
-            <h2 id="timerTitle">Push +1</h2>
-        </div>
-        <div class="timer-display" id="timerDisplay">5:00</div>
-        <div class="timer-controls">
-            <button id="startPauseButton" class="timer-btn start-btn">Старт</button>
-            <button id="resetButton" class="timer-btn reset-btn">Сброс</button>
-        </div>
-        <div class="timer-progress">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-    </div>
-</div>
+    <script>
+        // Конфигурация приложения
+        const APP_CONFIG = {
+            version: '1.0.0',
+            cacheName: 'film-dev-calculator-v1',
+            notificationTitle: 'Проявка завершена!',
+            vibrationPattern: [500, 200, 500, 200, 500]
+        };
+
+        // Класс для управления настройками
+        class Settings {
+            constructor() {
+                this.baseMinutes = 7;
+                this.baseSeconds = 0;
+                this.coefficient = 1.33;
+                this.steps = 3;
+                this.load();
+            }
+
+            load() {
+                const saved = JSON.parse(localStorage.getItem('filmDevSettings') || '{}');
+                Object.assign(this, saved);
+            }
+
+            save() {
+                localStorage.setItem('filmDevSettings', JSON.stringify({
+                    baseMinutes: this.baseMinutes,
+                    baseSeconds: this.baseSeconds,
+                    coefficient: this.coefficient,
+                    steps: this.steps
+                }));
+            }
+
+            getBaseTimeInSeconds() {
+                return this.baseMinutes * 60 + this.baseSeconds;
+            }
+
+            calculateTimes() {
+                const baseTime = this.getBaseTimeInSeconds();
+                const times = [{ label: "Базовое время", time: baseTime }];
+                
+                for (let i = 1; i <= this.steps; i++) {
+                    const time = Math.round(baseTime * Math.pow(this.coefficient, i));
+                    times.push({ 
+                        label: `+${i} ступен${i === 1 ? 'ь' : i < 5 ? 'и' : 'ей'}`, 
+                        time 
+                    });
+                }
+                
+                return times;
+            }
+        }
+
+        // Класс для управления таймером
+        class Timer {
+            constructor() {
+                this.interval = null;
+                this.remainingTime = 0;
+                this.totalTime = 0;
+                this.isRunning = false;
+                this.onUpdate = null;
+                this.onComplete = null;
+            }
+
+            start(timeInSeconds, title) {
+                this.stop();
+                this.totalTime = timeInSeconds;
+                this.remainingTime = timeInSeconds;
+                this.title = title;
+                
+                if (this.onUpdate) {
+                    this.onUpdate(this.remainingTime, this.totalTime);
+                }
+            }
+
+            play() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.interval = setInterval(() => {
+                    this.remainingTime--;
+                    
+                    if (this.onUpdate) {
+                        this.onUpdate(this.remainingTime, this.totalTime);
+                    }
+                    
+                    if (this.remainingTime <= 0) {
+                        this.complete();
+                    }
+                }, 1000);
+            }
+
+            pause() {
+                this.isRunning = false;
+                if (this.interval) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+            }
+
+            reset() {
+                this.pause();
+                this.remainingTime = this.totalTime;
+                if (this.onUpdate) {
+                    this.onUpdate(this.remainingTime, this.totalTime);
+                }
+            }
+
+            stop() {
+                this.pause();
+                this.remainingTime = 0;
+                this.totalTime = 0;
+            }
+
+            complete() {
+                this.pause();
+                if (this.onComplete) {
+                    this.onComplete();
+                }
+            }
+
+            toggle() {
+                if (this.isRunning) {
+                    this.pause();
+                } else {
+                    this.play();
+                }
+            }
+        }
+
+        // Основной класс приложения
+        class FilmDevCalculator {
+            constructor() {
+                this.settings = new Settings();
+                this.timer = new Timer();
+                this.initializeElements();
+                this.setupEventListeners();
+                this.setupTimer();
+                this.updateInputs();
+                this.requestNotificationPermission();
+            }
+
+            initializeElements() {
+                this.elements = {
+                    baseMinutesInput: document.getElementById('baseMinutes'),
+                    baseSecondsInput: document.getElementById('baseSeconds'),
+                    coefficientInput: document.getElementById('coefficient'),
+                    stepsInput: document.getElementById('steps'),
+                    calculateBtn: document.getElementById('calculateBtn'),
+                    results: document.getElementById('results'),
+                    resultsContainer: document.getElementById('resultsContainer'),
+                    timerScreen: document.getElementById('timerScreen'),
+                    timerDisplay: document.getElementById('timerDisplay'),
+                    timerTitle: document.getElementById('timerTitle'),
+                    startPauseButton: document.getElementById('startPauseButton'),
+                    resetButton: document.getElementById('resetButton'),
+                    backButton: document.getElementById('backButton'),
+                    progressBar: document.getElementById('progressBar')
+                };
+            }
+
+            setupEventListeners() {
+                this.elements.baseMinutesInput.addEventListener('input', () => {
+                    this.settings.baseMinutes = parseInt(this.elements.baseMinutesInput.value) || 0;
+                    this.settings.save();
+                });
+
+                this.elements.baseSecondsInput.addEventListener('input', () => {
+                    this.settings.baseSeconds = parseInt(this.elements.baseSecondsInput.value) || 0;
+                    this.settings.save();
+                });
+
+                this.elements.coefficientInput.addEventListener('input', () => {
+                    this.settings.coefficient = parseFloat(this.elements.coefficientInput.value) || 1.0;
+                    this.settings.save();
+                });
+
+                this.elements.stepsInput.addEventListener('input', () => {
+                    this.settings.steps = parseInt(this.elements.stepsInput.value) || 1;
+                    this.settings.save();
+                });
+
+                this.elements.calculateBtn.addEventListener('click', () => this.renderResults());
+                this.elements.startPauseButton.addEventListener('click', () => this.timer.toggle());
+                this.elements.resetButton.addEventListener('click', () => this.timer.reset());
+                this.elements.backButton.addEventListener('click', () => this.closeTimer());
+            }
+
+            setupTimer() {
+                this.timer.onUpdate = (remainingTime, totalTime) => {
+                    this.elements.timerDisplay.textContent = this.formatTime(remainingTime);
+                    this.elements.startPauseButton.textContent = this.timer.isRunning ? 'Пауза' : 'Старт';
+                    
+                    const progressPercent = (remainingTime / totalTime) * 100;
+                    this.elements.progressBar.style.width = `${progressPercent}%`;
+                };
+
+                this.timer.onComplete = () => {
+                    this.elements.timerDisplay.textContent = "Готово!";
+                    this.showNotification();
+                    this.vibrate();
+                };
+            }
+
+            updateInputs() {
+                this.elements.baseMinutesInput.value = this.settings.baseMinutes;
+                this.elements.baseSecondsInput.value = this.settings.baseSeconds;
+                this.elements.coefficientInput.value = this.settings.coefficient;
+                this.elements.stepsInput.value = this.settings.steps;
+            }
+
+            formatTime(totalSeconds) {
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            renderResults() {
+                const times = this.settings.calculateTimes();
+                this.elements.resultsContainer.innerHTML = '';
+                
+                times.forEach(item => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+                    resultItem.innerHTML = `
+                        <div class="result-info">
+                            <div class="result-label">${item.label}</div>
+                            <div class="result-time">${this.formatTime(item.time)}</div>
+                        </div>
+                        <button class="timer-btn" onclick="app.startTimer(${item.time}, '${item.label}')">
+                            <span class="timer-icon">⏱</span>
+                            <span>Таймер</span>
+                        </button>
+                    `;
+                    this.elements.resultsContainer.appendChild(resultItem);
+                });
+                
+                this.elements.results.style.display = 'block';
+            }
+
+            startTimer(timeInSeconds, label) {
+                this.timer.start(timeInSeconds, label);
+                this.elements.timerTitle.textContent = label;
+                this.elements.timerScreen.style.display = 'flex';
+                this.elements.results.style.display = 'none';
+            }
+
+            closeTimer() {
+                this.timer.stop();
+                this.elements.timerScreen.style.display = 'none';
+                this.elements.results.style.display = 'block';
+            }
+
+            async requestNotificationPermission() {
+                if ('Notification' in window && Notification.permission === 'default') {
+                    await Notification.requestPermission();
+                }
+            }
+
+            showNotification() {
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(APP_CONFIG.notificationTitle, {
+                        body: this.timer.title,
+                        icon: '/icons/icon-192x192.png',
+                        tag: 'film-dev-timer'
+                    });
+                }
+            }
+
+            vibrate() {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(APP_CONFIG.vibrationPattern);
+                }
+            }
+        }
+
+        // Инициализация приложения
+        let app;
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new FilmDevCalculator();
+            
+            // Регистрация Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(() => console.log('Service Worker зарегистрирован'))
+                    .catch(err => console.error('Ошибка регистрации Service Worker:', err));
+            }
+        });
+    </script>
 </body>
 </html>
