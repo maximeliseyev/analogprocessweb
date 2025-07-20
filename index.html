@@ -3,641 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор проявки плёнки</title>
+    <title>Film develop calculator</title>
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="./manifest.json">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        
-        body {
-            background: #1a1a1a;
-            color: #ffffff;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: #2a2a2a;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 24px;
-            font-size: 20px;
-        }
-        
-        .section {
-            margin-bottom: 20px;
-        }
-        
-        .section-title {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-        
-        .time-input {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        
-        .time-input input {
-            width: 60px;
-            padding: 12px 8px;
-            background: #3a3a3a;
-            border: 2px solid #4a4a4a;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 18px;
-            text-align: center;
-            -moz-appearance: textfield;
-        }
-        
-        .time-input input::-webkit-outer-spin-button,
-        .time-input input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        
-        .time-label {
-            font-size: 16px;
-            color: #cccccc;
-        }
-        
-        button {
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        
-        button:active {
-            transform: scale(0.95);
-        }
-        
-        .calc-btn {
-            width: 100%;
-            padding: 16px;
-            background: #007aff;
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-        
-        .calc-btn:hover {
-            background: #0056cc;
-        }
-        
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: #3a3a3a;
-            border-radius: 12px;
-            margin-bottom: 12px;
-        }
-        
-        .result-info {
-            flex: 1;
-        }
-        
-        .result-label {
-            font-size: 16px;
-            color: #cccccc;
-            margin-bottom: 4px;
-        }
-        
-        .result-time {
-            font-size: 24px;
-            font-weight: 700;
-            color: #ffffff;
-        }
-        
-        .timer-btn {
-            padding: 12px 16px;
-            background: #007aff;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            margin-left: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .timer-btn:hover {
-            background: #0056cc;
-        }
-        
-        .timer-icon {
-            font-size: 16px;
-        }
-        
-        /* Стили для экрана таймера */
-        .timer-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1a1a1a;
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .timer-container {
-            background: #2a2a2a;
-            border-radius: 16px;
-            padding: 24px;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .timer-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        
-        .back-button {
-            background: none;
-            border: none;
-            color: #007aff;
-            font-size: 16px;
-            padding: 8px;
-            margin-right: 16px;
-        }
-        
-        .timer-display {
-            font-size: 72px;
-            text-align: center;
-            margin: 24px 0;
-            font-weight: 700;
-        }
-        
-        .timer-controls {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .timer-control-btn {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .start-btn {
-            background: #007aff;
-            color: white;
-        }
-        
-        .start-btn:hover {
-            background: #0056cc;
-        }
-        
-        .reset-btn {
-            background: #3a3a3a;
-            color: white;
-        }
-        
-        .reset-btn:hover {
-            background: #4a4a4a;
-        }
-        
-        .timer-progress {
-            height: 6px;
-            background: #3a3a3a;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: #007aff;
-            width: 100%;
-            transition: width 0.1s linear;
-        }
-        
-        @media (max-width: 480px) {
-            .container, .timer-container {
-                padding: 16px;
-            }
-            
-            .timer-display {
-                font-size: 60px;
-            }
-            
-            .result-item {
-                flex-direction: column;
-                gap: 12px;
-                text-align: center;
-            }
-            
-            .timer-btn {
-                margin-left: 0;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
             }
         }
-        
-        @media (prefers-color-scheme: light) {
-            body {
-                background: #f5f5f5;
-                color: #333;
-            }
-            
-            .container, .timer-container {
-                background: #ffffff;
-                color: #333;
-            }
-            
-            .time-input input {
-                background: #f0f0f0;
-                border-color: #ddd;
-                color: #333;
-            }
-            
-            .result-item {
-                background: #f0f0f0;
-            }
-            
-            .reset-btn {
-                background: #f0f0f0;
-                color: #333;
-            }
-            
-            .timer-screen {
-                background: #f5f5f5;
-            }
-        }
-    </style>
+    </script>
+    <script type="module" src="./app.js" defer></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Калькулятор проявки плёнки</h1>
+<body class="bg-gray-900 text-white min-h-screen p-4 transition-colors duration-300">
+    <!-- Basic -->
+    <div class="max-w-md mx-auto bg-gray-800 rounded-2xl p-6 shadow-2xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 id="appTitle" class="text-xl font-semibold">Develop calculator</h1>
+            <button id="languageToggle" class="text-blue-500 hover:text-blue-400 font-medium text-sm px-3 py-1 rounded-lg border border-blue-500 hover:border-blue-400 transition-colors">
+                EN
+            </button>
+        </div>
         
-        <div class="section">
-            <span class="section-title">Базовое время:</span>
-            <div class="time-input">
-                <input type="number" id="baseMinutes" min="0" max="59" value="7">
-                <span class="time-label">мин</span>
-                <input type="number" id="baseSeconds" min="0" max="59" value="0">
-                <span class="time-label">сек</span>
+        <!-- Film setup section -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Film:</label>
+            <select id="filmSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
+                <optgroup label="Ilford">
+                    <option value="ilford-hp5-plus">Ilford HP5+</option>
+                    <option value="ilford-fp4-plus">Ilford FP4+</option>
+                    <option value="ilford-delta-400">Ilford Delta 400 Professional</option>
+                    <option value="ilford-delta-100">Ilford Delta 100 Professional</option>
+                    <option value="ilford-delta-3200">Ilford Delta 3200 Professional</option>
+                    <option value="ilford-panf-plus">Ilford PANF Plus</option>
+                    <option value="ilford-sfx-200">Ilford SFX 200</option>
+                </optgroup>
+                <optgroup label="Kodak">
+                    <option value="kodak-tri-x">Kodak Tri-X 400</option>
+                    <option value="kodak-tmax-400">Kodak T-Max 400</option>
+                    <option value="kodak-tmax-100">Kodak T-Max 100</option>
+                    <option value="kodak-double-x">Kodak Double-X 5222</option>
+                </optgroup>
+                <optgroup label="Foma">
+                    <option value="foma-400">Fomapan 400</option>
+                </optgroup>
+                <optgroup label="Kentmere">
+                    <option value="kentmere-400">Kentmere 400</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="lucky-aerial-1023">Lucky Aerial 1023</option>
+                    <option value="lucky-shd-400">Lucky SHD 400</option>
+                    <option value="orwo-un54">ORWO UN54</option>
+                    <option value="rollei-retro-80s">Rollei Retro 80S</option>
+                    <option value="rollei-rpx400">Rollei RPX400</option>
+                    <option value="shanghai-gp3-100">Shanghai GP3 100</option>
+                    <option value="tasma-aero-25l">Tasma Aero Type-25L</option>
+                    <option value="tasma-aero-42l">Tasma Aero Type-42L</option>
+                </optgroup>
+                <optgroup label="Custom">
+                    <option value="custom">Maual input</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <!-- Проявитель -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Developer:</label>
+            <select id="developerSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
+                <optgroup label="Ilford">
+                    <option value="ilford-id11">ID-11</option>
+                    <option value="ilford-ddx">DD-X</option>
+                    <option value="ilford-hc">HC</option>
+                    <option value="ilford-lc29">LC29</option>
+                    <option value="ilford-ilfosol-3">Ilfosol</option>
+                </optgroup>
+                <optgroup label="Kodak">
+                    <option value="kodak-d76">D-76</option>
+                    <option value="kodak-hc110">HC-110</option>
+                    <option value="kodak-xtol">XTOL</option>
+                    <option value="kodak-tmax">T-Max</option>
+                </optgroup>
+                <optgroup label="Other">
+                    <option value="rodinal">Rodinal</option>
+                    <option value="microphen">Microphen</option>
+                    <option value="perceptol">Perceptol</option>
+                </optgroup>
+                <optgroup label="Custom">
+                    <option value="custom">Custom</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <!-- Разведение -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Dilution:</label>
+            <select id="dilutionSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
+                <option value="stock">Stock</option>
+                <option value="1+1">1+1</option>
+                <option value="1+2">1+2</option>
+                <option value="1+3">1+3</option>
+                <option value="1+4">1+4</option>
+                <option value="1+50">1+50</option>
+                <option value="1+100">1+50</option>
+                <option value="A 1+15">A 1+15 (HC-110)</option>
+                <option value="B 1+31">B 1+31 (HC-110)</option>
+                <option value="E 1+47">E 1+47 (HC-110)</option>
+            </select>
+        </div>
+        
+        <!-- ISO -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">ISO/EI:</label>
+            <select id="isoSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="80">80</option>
+                <option value="100">100</option>
+                <option value="125">125</option>
+                <option value="200">200</option>
+                <option value="250">250</option>
+                <option value="320">320</option>
+                <option value="400" selected>400</option>
+                <option value="500">500</option>
+                <option value="800">800</option>
+                <option value="1600">1600</option>
+                <option value="3200">3200</option>
+                <option value="6400">6400</option>
+                <option value="12500">12500</option>
+            </select>
+        </div>
+        
+        <!-- Температура -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Temperature (°C):</label>
+            <select id="temperatureSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
+                <option value="14">14°C (+80%)</option>
+                <option value="15">15°C (+60%)</option>
+                <option value="16">16°C (+40%)</option>
+                <option value="17">17°C (+25%)</option>
+                <option value="18">18°C (+10%)</option>
+                <option value="19">19°C (+5%)</option>
+                <option value="20" selected>20°C (Standard)</option>
+                <option value="21">21°C (-5%)</option>
+                <option value="22">22°C (-15%)</option>
+                <option value="23">23°C (-25%)</option>
+                <option value="24">24°C (-35%)</option>
+                <option value="25">25°C (-45%)</option>
+            </select>
+        </div>
+        
+        <!-- Пользовательское базовое время (скрыто по умолчанию) -->
+        <div id="customTimeSection" class="mb-6 hidden">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Custom time:</label>
+            <div class="flex items-center gap-2">
+                <input type="number" id="baseMinutes" min="0" max="59" value="7" 
+                       class="w-16 px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-lg text-center focus:border-blue-500 focus:outline-none transition-colors">
+                <span class="text-gray-400 text-base">min.</span>
+                <input type="number" id="baseSeconds" min="0" max="59" value="0" 
+                       class="w-16 px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-lg text-center focus:border-blue-500 focus:outline-none transition-colors">
+                <span class="text-gray-400 text-base">sec.</span>
             </div>
         </div>
         
-        <div class="section">
-            <span class="section-title">Коэффициент:</span>
-            <div class="time-input">
-                <input type="number" id="coefficient" min="0.1" step="0.01" value="1.33">
+       
+        
+        <!-- Коэффициент -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Ratio:</label>
+            <input type="number" id="coefficient" min="0.1" step="0.01" value="1.33" 
+                   class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-lg text-center focus:border-blue-500 focus:outline-none transition-colors">
+        </div>
+        
+        <!-- Процесс проявки -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Process:</label>
+            <div class="flex bg-gray-700 rounded-lg p-1">
+                <button id="pushProcess" class="flex-1 py-2 px-4 rounded-md text-white font-medium transition-all duration-200 bg-blue-600">
+                    Push
+                </button>
+                <button id="pullProcess" class="flex-1 py-2 px-4 rounded-md text-gray-400 font-medium transition-all duration-200 hover:text-white">
+                    Pull
+                </button>
             </div>
         </div>
         
-        <div class="section">
-            <span class="section-title">Количество ступеней:</span>
-            <div class="time-input">
-                <input type="number" id="steps" min="1" max="5" value="3">
+        <!-- Количество ступеней -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-300 mb-3">Steps:</label>
+            <input type="number" id="steps" min="1" max="5" value="3" 
+                   class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-lg text-center focus:border-blue-500 focus:outline-none transition-colors">
+        </div>
+
+         <!-- Информационная панель -->
+         <div id="infoPanel" class="mb-6 bg-gray-700 rounded-xl p-4 border border-gray-600">
+            <div class="text-sm text-gray-400 mb-2">Current</div>
+            <div class="grid grid-cols-1 gap-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Film:</span>
+                    <span id="currentFilm" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Developer:</span>
+                    <span id="currentDeveloper" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Dilution:</span>
+                    <span id="currentDilution" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">ISO/EI:</span>
+                    <span id="currentISO" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Temperature:</span>
+                    <span id="currentTemperature" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Process:</span>
+                    <span id="currentProcess" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Basic time:</span>
+                    <span id="currentBaseTime" class="text-white font-medium">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-300">Data:</span>
+                    <span id="dataStatus" class="text-white font-medium">-</span>
+                </div>
             </div>
         </div>
         
-        <button class="calc-btn" id="calculateBtn">Рассчитать</button>
+        <!-- Кнопка расчета -->
+        <button id="calculateBtn" 
+                class="w-full py-4 bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl text-white text-lg font-semibold transition-all duration-200 mb-6">
+            Calculate
+        </button>
         
-        <div class="results" id="results" style="display: none;">
+        <!-- Результаты -->
+        <div id="results" class="hidden">
             <div id="resultsContainer"></div>
         </div>
     </div>
     
     <!-- Экран таймера -->
-    <div id="timerScreen" class="timer-screen">
-        <div class="timer-container">
-            <div class="timer-header">
-                <button id="backButton" class="back-button">← Назад</button>
-                <h2 id="timerTitle">Таймер</h2>
+    <div id="timerScreen" class="fixed inset-0 bg-gray-900 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <!-- Заголовок таймера -->
+            <div class="flex items-center mb-6">
+                <button id="backButton" 
+                        class="text-blue-500 hover:text-blue-400 font-medium text-base px-2 py-2 transition-colors">
+                    ← Back
+                </button>
+                <h2 id="timerTitle" class="text-lg font-semibold ml-4">Timer</h2>
             </div>
-            <div class="timer-display" id="timerDisplay">0:00</div>
-            <div class="timer-controls">
-                <button id="startPauseButton" class="timer-control-btn start-btn">Старт</button>
-                <button id="resetButton" class="timer-control-btn reset-btn">Сброс</button>
+            
+            <!-- Круговой таймер -->
+            <div class="relative w-64 h-64 mx-auto mb-6">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" 
+                            class="fill-none stroke-gray-600 stroke-2 opacity-30" />
+                    <circle id="progressCircle" cx="50" cy="50" r="45" 
+                            class="fill-none stroke-blue-500 stroke-2 stroke-linecap-round transition-all duration-100 ease-linear" 
+                            style="stroke-dasharray: 283; stroke-dashoffset: 0;" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <div id="timerDisplay" class="text-4xl font-light text-white font-mono mb-2">0:00</div>
+                    <div class="text-sm text-gray-400" id="timerLabel">Time</div>
+                </div>
             </div>
-            <div class="timer-progress">
-                <div class="progress-bar" id="progressBar"></div>
+            
+            <!-- Кнопки управления -->
+            <div class="flex gap-4 mb-6">
+                <button id="startPauseButton" 
+                        class="flex-1 py-4 bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl text-white font-semibold transition-all duration-200">
+                    Start
+                </button>
+                <button id="resetButton" 
+                        class="flex-1 py-4 bg-gray-700 hover:bg-gray-600 active:scale-95 rounded-xl text-white font-semibold transition-all duration-200">
+                    Reset
+                </button>
+            </div>
+            
+            <!-- Прогресс бар -->
+            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full bg-blue-500 transition-all duration-100 ease-linear" style="width: 100%"></div>
             </div>
         </div>
     </div>
 
-    <script>
-        // Конфигурация приложения
-        const APP_CONFIG = {
-            version: '1.0.0',
-            cacheName: 'film-dev-calculator-v1',
-            notificationTitle: 'Проявка завершена!',
-            vibrationPattern: [500, 200, 500, 200, 500]
-        };
 
-        // Класс для управления настройками
-        class Settings {
-            constructor() {
-                this.baseMinutes = 7;
-                this.baseSeconds = 0;
-                this.coefficient = 1.33;
-                this.steps = 3;
-                this.load();
-            }
-
-            load() {
-                const saved = JSON.parse(localStorage.getItem('filmDevSettings') || '{}');
-                Object.assign(this, saved);
-            }
-
-            save() {
-                localStorage.setItem('filmDevSettings', JSON.stringify({
-                    baseMinutes: this.baseMinutes,
-                    baseSeconds: this.baseSeconds,
-                    coefficient: this.coefficient,
-                    steps: this.steps
-                }));
-            }
-
-            getBaseTimeInSeconds() {
-                return this.baseMinutes * 60 + this.baseSeconds;
-            }
-
-            calculateTimes() {
-                const baseTime = this.getBaseTimeInSeconds();
-                const times = [{ label: "Базовое время", time: baseTime }];
-                
-                for (let i = 1; i <= this.steps; i++) {
-                    const time = Math.round(baseTime * Math.pow(this.coefficient, i));
-                    times.push({ 
-                        label: `+${i} ступен${i === 1 ? 'ь' : i < 5 ? 'и' : 'ей'}`, 
-                        time 
-                    });
-                }
-                
-                return times;
-            }
-        }
-
-        // Класс для управления таймером
-        class Timer {
-            constructor() {
-                this.interval = null;
-                this.remainingTime = 0;
-                this.totalTime = 0;
-                this.isRunning = false;
-                this.onUpdate = null;
-                this.onComplete = null;
-            }
-
-            start(timeInSeconds, title) {
-                this.stop();
-                this.totalTime = timeInSeconds;
-                this.remainingTime = timeInSeconds;
-                this.title = title;
-                
-                if (this.onUpdate) {
-                    this.onUpdate(this.remainingTime, this.totalTime);
-                }
-            }
-
-            play() {
-                if (this.isRunning) return;
-                
-                this.isRunning = true;
-                this.interval = setInterval(() => {
-                    this.remainingTime--;
-                    
-                    if (this.onUpdate) {
-                        this.onUpdate(this.remainingTime, this.totalTime);
-                    }
-                    
-                    if (this.remainingTime <= 0) {
-                        this.complete();
-                    }
-                }, 1000);
-            }
-
-            pause() {
-                this.isRunning = false;
-                if (this.interval) {
-                    clearInterval(this.interval);
-                    this.interval = null;
-                }
-            }
-
-            reset() {
-                this.pause();
-                this.remainingTime = this.totalTime;
-                if (this.onUpdate) {
-                    this.onUpdate(this.remainingTime, this.totalTime);
-                }
-            }
-
-            stop() {
-                this.pause();
-                this.remainingTime = 0;
-                this.totalTime = 0;
-            }
-
-            complete() {
-                this.pause();
-                if (this.onComplete) {
-                    this.onComplete();
-                }
-            }
-
-            toggle() {
-                if (this.isRunning) {
-                    this.pause();
-                } else {
-                    this.play();
-                }
-            }
-        }
-
-        // Основной класс приложения
-        class FilmDevCalculator {
-            constructor() {
-                this.settings = new Settings();
-                this.timer = new Timer();
-                this.initializeElements();
-                this.setupEventListeners();
-                this.setupTimer();
-                this.updateInputs();
-                this.requestNotificationPermission();
-            }
-
-            initializeElements() {
-                this.elements = {
-                    baseMinutesInput: document.getElementById('baseMinutes'),
-                    baseSecondsInput: document.getElementById('baseSeconds'),
-                    coefficientInput: document.getElementById('coefficient'),
-                    stepsInput: document.getElementById('steps'),
-                    calculateBtn: document.getElementById('calculateBtn'),
-                    results: document.getElementById('results'),
-                    resultsContainer: document.getElementById('resultsContainer'),
-                    timerScreen: document.getElementById('timerScreen'),
-                    timerDisplay: document.getElementById('timerDisplay'),
-                    timerTitle: document.getElementById('timerTitle'),
-                    startPauseButton: document.getElementById('startPauseButton'),
-                    resetButton: document.getElementById('resetButton'),
-                    backButton: document.getElementById('backButton'),
-                    progressBar: document.getElementById('progressBar')
-                };
-            }
-
-            setupEventListeners() {
-                this.elements.baseMinutesInput.addEventListener('input', () => {
-                    this.settings.baseMinutes = parseInt(this.elements.baseMinutesInput.value) || 0;
-                    this.settings.save();
-                });
-
-                this.elements.baseSecondsInput.addEventListener('input', () => {
-                    this.settings.baseSeconds = parseInt(this.elements.baseSecondsInput.value) || 0;
-                    this.settings.save();
-                });
-
-                this.elements.coefficientInput.addEventListener('input', () => {
-                    this.settings.coefficient = parseFloat(this.elements.coefficientInput.value) || 1.0;
-                    this.settings.save();
-                });
-
-                this.elements.stepsInput.addEventListener('input', () => {
-                    this.settings.steps = parseInt(this.elements.stepsInput.value) || 1;
-                    this.settings.save();
-                });
-
-                this.elements.calculateBtn.addEventListener('click', () => this.renderResults());
-                this.elements.startPauseButton.addEventListener('click', () => this.timer.toggle());
-                this.elements.resetButton.addEventListener('click', () => this.timer.reset());
-                this.elements.backButton.addEventListener('click', () => this.closeTimer());
-            }
-
-            setupTimer() {
-                this.timer.onUpdate = (remainingTime, totalTime) => {
-                    this.elements.timerDisplay.textContent = this.formatTime(remainingTime);
-                    this.elements.startPauseButton.textContent = this.timer.isRunning ? 'Пауза' : 'Старт';
-                    
-                    const progressPercent = (remainingTime / totalTime) * 100;
-                    this.elements.progressBar.style.width = `${progressPercent}%`;
-                };
-
-                this.timer.onComplete = () => {
-                    this.elements.timerDisplay.textContent = "Готово!";
-                    this.showNotification();
-                    this.vibrate();
-                };
-            }
-
-            updateInputs() {
-                this.elements.baseMinutesInput.value = this.settings.baseMinutes;
-                this.elements.baseSecondsInput.value = this.settings.baseSeconds;
-                this.elements.coefficientInput.value = this.settings.coefficient;
-                this.elements.stepsInput.value = this.settings.steps;
-            }
-
-            formatTime(totalSeconds) {
-                const mins = Math.floor(totalSeconds / 60);
-                const secs = totalSeconds % 60;
-                return `${mins}:${secs.toString().padStart(2, '0')}`;
-            }
-
-            renderResults() {
-                const times = this.settings.calculateTimes();
-                this.elements.resultsContainer.innerHTML = '';
-                
-                times.forEach(item => {
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'result-item';
-                    resultItem.innerHTML = `
-                        <div class="result-info">
-                            <div class="result-label">${item.label}</div>
-                            <div class="result-time">${this.formatTime(item.time)}</div>
-                        </div>
-                        <button class="timer-btn" onclick="app.startTimer(${item.time}, '${item.label}')">
-                            <span class="timer-icon">⏱</span>
-                            <span>Таймер</span>
-                        </button>
-                    `;
-                    this.elements.resultsContainer.appendChild(resultItem);
-                });
-                
-                this.elements.results.style.display = 'block';
-            }
-
-            startTimer(timeInSeconds, label) {
-                this.timer.start(timeInSeconds, label);
-                this.elements.timerTitle.textContent = label;
-                this.elements.timerScreen.style.display = 'flex';
-                this.elements.results.style.display = 'none';
-            }
-
-            closeTimer() {
-                this.timer.stop();
-                this.elements.timerScreen.style.display = 'none';
-                this.elements.results.style.display = 'block';
-            }
-
-            async requestNotificationPermission() {
-                if ('Notification' in window && Notification.permission === 'default') {
-                    await Notification.requestPermission();
-                }
-            }
-
-            showNotification() {
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification(APP_CONFIG.notificationTitle, {
-                        body: this.timer.title,
-                        icon: '/icons/icon-192x192.png',
-                        tag: 'film-dev-timer'
-                    });
-                }
-            }
-
-            vibrate() {
-                if ('vibrate' in navigator) {
-                    navigator.vibrate(APP_CONFIG.vibrationPattern);
-                }
-            }
-        }
-
-        // Инициализация приложения
-        let app;
-        document.addEventListener('DOMContentLoaded', () => {
-            app = new FilmDevCalculator();
-            
-            // Регистрация Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('Service Worker зарегистрирован'))
-                    .catch(err => console.error('Ошибка регистрации Service Worker:', err));
-            }
-        });
-    </script>
 </body>
 </html>
