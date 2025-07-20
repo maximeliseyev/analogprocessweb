@@ -21,6 +21,10 @@ export const LOCALES = {
         'iso': 'ISO/EI:',
         'temperature': 'Temperature (°C):',
         'customTime': 'Custom time:',
+        'baseTime': 'Base time:',
+        'manualInput': 'Manual input',
+        'fromDatabase': 'From database:',
+        'defaultTime': 'Default time (no data available)',
         'ratio': 'Ratio:',
         'process': 'Process:',
         'push': 'Push',
@@ -105,6 +109,22 @@ export const LOCALES = {
         // Уведомления
         'developmentComplete': 'Development complete!',
         
+        // Управление пресетами
+        'presetsManagement': 'Presets Management',
+        'films': 'Films',
+        'developers': 'Developers',
+        'developmentTimes': 'Development Times',
+        'addFilm': 'Add Film',
+        'addDeveloper': 'Add Developer',
+        'addTime': 'Add Time',
+        'edit': 'Edit',
+        'delete': 'Delete',
+        'save': 'Save',
+        'cancel': 'Cancel',
+        'filmPresets': 'Film Presets',
+        'developerPresets': 'Developer Presets',
+        'timePresets': 'Development Time Presets',
+        
         // ISO значения
         'iso25': '25',
         'iso50': '50',
@@ -142,6 +162,10 @@ export const LOCALES = {
         'iso': 'ISO/EI:',
         'temperature': 'Температура (°C):',
         'customTime': 'Пользовательское время:',
+        'baseTime': 'Базовое время:',
+        'manualInput': 'Ручной ввод',
+        'fromDatabase': 'Из базы данных:',
+        'defaultTime': 'Время по умолчанию (нет данных)',
         'ratio': 'Коэффициент:',
         'process': 'Процесс проявки:',
         'push': 'Push',
@@ -217,6 +241,22 @@ export const LOCALES = {
         
         // Уведомления
         'developmentComplete': 'Проявка завершена!',
+        
+        // Управление пресетами
+        'presetsManagement': 'Управление пресетами',
+        'films': 'Плёнки',
+        'developers': 'Проявители',
+        'developmentTimes': 'Времена проявки',
+        'addFilm': 'Добавить плёнку',
+        'addDeveloper': 'Добавить проявитель',
+        'addTime': 'Добавить время',
+        'edit': 'Изменить',
+        'delete': 'Удалить',
+        'save': 'Сохранить',
+        'cancel': 'Отмена',
+        'filmPresets': 'Пресеты плёнок',
+        'developerPresets': 'Пресеты проявителей',
+        'timePresets': 'Пресеты времён проявки',
         
         // ISO значения
         'iso25': '25',
@@ -302,10 +342,10 @@ export class LocalizationManager {
         // Обновляем кнопки процесса
         this.updateProcessButtons();
         
-        // Обновляем лейбл пользовательского времени
+        // Обновляем лейбл базового времени
         const customTimeLabel = document.querySelector('#customTimeSection label');
         if (customTimeLabel) {
-            customTimeLabel.textContent = this.t('customTime');
+            customTimeLabel.textContent = this.t('baseTime');
         }
         
         // Обновляем единицы измерения времени
@@ -329,6 +369,9 @@ export class LocalizationManager {
         
         // Обновляем опции температур
         this.updateTemperatureOptions();
+        
+        // Обновляем интерфейс управления пресетами
+        this.updatePresetsInterface();
     }
     
     // Обновить элемент
@@ -473,5 +516,45 @@ export class LocalizationManager {
         
         if (pushBtn) pushBtn.textContent = this.t('push');
         if (pullBtn) pullBtn.textContent = this.t('pull');
+    }
+    
+    // Обновить интерфейс управления пресетами
+    updatePresetsInterface() {
+        // Заголовок модального окна
+        this.updateElement('presetsModalTitle', this.t('presetsManagement'));
+        
+        // Вкладки
+        const tabs = document.querySelectorAll('.preset-tab');
+        tabs.forEach(tab => {
+            const tabName = tab.dataset.tab;
+            if (tabName === 'films') tab.textContent = this.t('films');
+            else if (tabName === 'developers') tab.textContent = this.t('developers');
+            else if (tabName === 'times') tab.textContent = this.t('developmentTimes');
+        });
+        
+        // Заголовки вкладок
+        this.updateElement('filmsTab', this.t('filmPresets'));
+        this.updateElement('developersTab', this.t('developerPresets'));
+        this.updateElement('timesTab', this.t('timePresets'));
+        
+        // Кнопки добавления
+        this.updateElement('addFilmBtn', this.t('addFilm'));
+        this.updateElement('addDeveloperBtn', this.t('addDeveloper'));
+        this.updateElement('addTimeBtn', this.t('addTime'));
+        
+        // Кнопки в списках
+        const editButtons = document.querySelectorAll('.bg-blue-600');
+        editButtons.forEach(btn => {
+            if (btn.textContent === 'Edit') btn.textContent = this.t('edit');
+        });
+        
+        const deleteButtons = document.querySelectorAll('.bg-red-600');
+        deleteButtons.forEach(btn => {
+            if (btn.textContent === 'Delete') btn.textContent = this.t('delete');
+        });
+        
+        // Кнопки в форме
+        this.updateElement('saveBtn', this.t('save'));
+        this.updateElement('deleteBtn', this.t('delete'));
     }
 } 

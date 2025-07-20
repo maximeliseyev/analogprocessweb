@@ -7,7 +7,14 @@
   "orientation": "portrait",
   "theme_color": "#000000",
   "background_color": "#1a1a1a",
+  "scope": "/",
   "icons": [
+    {
+      "src": "icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    },
     {
       "src": "icons/icon-192x192.png",
       "type": "image/png",
@@ -19,8 +26,19 @@
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-180x180.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
     }
   ],
   "categories": ["photography", "utilities"],
-  "lang": "ru"
+  "lang": "ru",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "apple-mobile-web-app-capable": "yes",
+  "apple-mobile-web-app-status-bar-style": "black-translucent",
+  "apple-mobile-web-app-title": "Проявка"
 }

@@ -1,6 +1,7 @@
 // Импорт пресетов и локализации
 import { FILM_DATA, DEVELOPER_DATA, DEVELOPMENT_TIMES, TEMPERATURE_MULTIPLIERS, FilmDevUtils } from './presets.js';
 import { LocalizationManager } from './locales.js';
+import { PresetsManager } from './presets-manager.js';
 
 // Конфигурация приложения
 const APP_CONFIG = {
@@ -74,6 +75,25 @@ class Settings {
         
         // Если данных нет, используем ручные настройки
         return this.settings.baseMinutes * 60 + this.settings.baseSeconds;
+    }
+    
+    // Получить базовое время из базы данных (без fallback на ручные настройки)
+    getDatabaseTimeInSeconds() {
+        if (this.settings.film === 'custom') {
+            return null; // Для пользовательской плёнки нет данных в БД
+        }
+        
+        const result = FilmDevUtils.getBaseTime(
+            this.settings.film,
+            this.settings.developer,
+            this.settings.dilution,
+            this.settings.iso
+        );
+        
+        console.log('getDatabaseTimeInSeconds called with:', this.settings.film, this.settings.developer, this.settings.dilution, this.settings.iso);
+        console.log('FilmDevUtils.getBaseTime returned:', result);
+        
+        return result;
     }
 
     calculateTimes() {
@@ -297,9 +317,63 @@ class UI {
         this.updateInfoPanel(settings);
     }
     
-    updateCustomTimeSection() {
-        const isCustomFilm = this.elements.filmSelect.value === 'custom';
-        this.elements.customTimeSection.classList.toggle('hidden', !isCustomFilm);
+    updateCustomTimeSection(settings) {
+        try {
+            console.log('updateCustomTimeSection called');
+            // Поля времени теперь всегда видимы
+            this.elements.customTimeSection.classList.remove('hidden');
+            
+            // Получаем базовое время для выбранной комбинации
+            if (settings) {
+                const filmKey = settings.get('film');
+                const developerKey = settings.get('developer');
+                const dilution = settings.get('dilution');
+                const iso = settings.get('iso');
+                
+                console.log('Updating time for:', filmKey, developerKey, dilution, iso);
+                
+                // Сначала пробуем получить время из базы данных
+                let baseTimeInSeconds = settings.getDatabaseTimeInSeconds();
+                let timeSource = 'database';
+                
+                console.log('Database time:', baseTimeInSeconds);
+                
+                // Если данных нет, используем ручные настройки
+                if (baseTimeInSeconds === null) {
+                    baseTimeInSeconds = settings.getBaseTimeInSeconds();
+                    timeSource = 'manual';
+                    console.log('Using manual time:', baseTimeInSeconds);
+                }
+                
+                const minutes = Math.floor(baseTimeInSeconds / 60);
+                const seconds = baseTimeInSeconds % 60;
+                
+                console.log('Setting time to:', minutes, ':', seconds);
+                
+                // Обновляем поля ввода
+                this.elements.baseMinutes.value = minutes;
+                this.elements.baseSeconds.value = seconds;
+                
+                // Обновляем источник времени
+                const timeSourceElement = document.getElementById('timeSource');
+                if (timeSourceElement) {
+                    const localization = window.app?.localization;
+                    
+                    if (filmKey === 'custom') {
+                        timeSourceElement.textContent = localization?.t('manualInput') || 'Manual input';
+                    } else if (timeSource === 'database') {
+                        const filmName = FILM_DATA[filmKey]?.name || filmKey;
+                        const developerName = DEVELOPER_DATA[developerKey]?.name || developerKey;
+                        const fromDbText = localization?.t('fromDatabase') || 'From database:';
+                        timeSourceElement.textContent = `${fromDbText} ${filmName} + ${developerName}`;
+                    } else {
+                        timeSourceElement.textContent = localization?.t('defaultTime') || 'Default time (no data available)';
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error in updateCustomTimeSection:', error);
+        }
     }
     
     updateProcessButtons(process) {
@@ -493,6 +567,7 @@ class FilmDevCalculator {
         this.notifications = new NotificationManager();
         this.ui = new UI();
         this.localization = new LocalizationManager();
+        this.presetsManager = new PresetsManager();
         
         this.setupEventListeners();
         this.setupTimer();
@@ -524,15 +599,18 @@ class FilmDevCalculator {
 
         // Обработчики для пресетов
         this.ui.elements.filmSelect.addEventListener('change', (e) => {
+            console.log('Film changed to:', e.target.value);
             this.settings.set('film', e.target.value);
-            this.ui.updateCustomTimeSection();
+            this.ui.updateCustomTimeSection(this.settings);
             this.ui.updateDilutionOptions(this.settings);
             this.ui.updateISOOptions(this.settings);
             this.ui.updateInfoPanel(this.settings);
         });
 
         this.ui.elements.developerSelect.addEventListener('change', (e) => {
+            console.log('Developer changed to:', e.target.value);
             this.settings.set('developer', e.target.value);
+            this.ui.updateCustomTimeSection(this.settings);
             this.ui.updateDilutionOptions(this.settings);
             this.ui.updateISOOptions(this.settings);
             this.ui.updateInfoPanel(this.settings);
@@ -540,12 +618,14 @@ class FilmDevCalculator {
 
         this.ui.elements.dilutionSelect.addEventListener('change', (e) => {
             this.settings.set('dilution', e.target.value);
+            this.ui.updateCustomTimeSection(this.settings);
             this.ui.updateISOOptions(this.settings);
             this.ui.updateInfoPanel(this.settings);
         });
 
         this.ui.elements.isoSelect.addEventListener('change', (e) => {
             this.settings.set('iso', parseInt(e.target.value));
+            this.ui.updateCustomTimeSection(this.settings);
             this.ui.updateInfoPanel(this.settings);
         });
 
