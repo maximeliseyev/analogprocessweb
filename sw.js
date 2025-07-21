@@ -1,12 +1,22 @@
-const CACHE_NAME = 'film-dev-calculator-v1';
+const CACHE_NAME = 'film-dev-calculator-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/styles.css',
-  '/script.js',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/app.js',
+  '/icons/icon.svg',
+  // JS modules
+  '/js/filmdev-utils.js',
+  '/js/presets-manager.js',
+  '/js/localization.js',
+  // Locales
+  '/locales/en.json',
+  '/locales/ru.json',
+  // Data
+  '/data/development-times.json',
+  '/data/films.json',
+  '/data/developers.json',
+  '/data/temperature-multipliers.json'
 ];
 
 // Установка Service Worker

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Film develop calculator</title>
     <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Проявка">
     <link rel="manifest" href="./manifest.json">
@@ -55,41 +55,6 @@
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-300 mb-3">Film:</label>
             <select id="filmSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
-                <optgroup label="Ilford">
-                    <option value="ilford-hp5-plus">Ilford HP5+</option>
-                    <option value="ilford-fp4-plus">Ilford FP4+</option>
-                    <option value="ilford-delta-400">Ilford Delta 400 Professional</option>
-                    <option value="ilford-delta-100">Ilford Delta 100 Professional</option>
-                    <option value="ilford-delta-3200">Ilford Delta 3200 Professional</option>
-                    <option value="ilford-panf-plus">Ilford PANF Plus</option>
-                    <option value="ilford-sfx-200">Ilford SFX 200</option>
-                </optgroup>
-                <optgroup label="Kodak">
-                    <option value="kodak-tri-x">Kodak Tri-X 400</option>
-                    <option value="kodak-tmax-400">Kodak T-Max 400</option>
-                    <option value="kodak-tmax-100">Kodak T-Max 100</option>
-                    <option value="kodak-tmax-p3200">Kodak T-Max P3200</option>
-                    <option value="kodak-double-x">Kodak Double-X 5222</option>
-                </optgroup>
-                <optgroup label="Foma">
-                    <option value="foma-400">Fomapan 400</option>
-                </optgroup>
-                <optgroup label="Kentmere">
-                    <option value="kentmere-400">Kentmere 400</option>
-                </optgroup>
-                <optgroup label="Other">
-                    <option value="lucky-aerial-1023">Lucky Aerial 1023</option>
-                    <option value="lucky-shd-400">Lucky SHD 400</option>
-                    <option value="orwo-un54">ORWO UN54</option>
-                    <option value="rollei-retro-80s">Rollei Retro 80S</option>
-                    <option value="rollei-rpx400">Rollei RPX400</option>
-                    <option value="shanghai-gp3-100">Shanghai GP3 100</option>
-                    <option value="tasma-aero-25l">Tasma Aero Type-25L</option>
-                    <option value="tasma-aero-42l">Tasma Aero Type-42L</option>
-                </optgroup>
-                <optgroup label="Custom">
-                    <option value="custom">Maual input</option>
-                </optgroup>
             </select>
         </div>
         
@@ -97,27 +62,6 @@
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-300 mb-3">Developer:</label>
             <select id="developerSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
-                <optgroup label="Ilford">
-                    <option value="ilford-id11">ID-11</option>
-                    <option value="ilford-ddx">DD-X</option>
-                    <option value="ilford-hc">HC</option>
-                    <option value="ilford-lc29">LC29</option>
-                    <option value="ilford-ilfosol-3">Ilfosol</option>
-                </optgroup>
-                <optgroup label="Kodak">
-                    <option value="kodak-d76">D-76</option>
-                    <option value="kodak-hc110">HC-110</option>
-                    <option value="kodak-xtol">XTOL</option>
-                    <option value="kodak-tmax">T-Max</option>
-                </optgroup>
-                <optgroup label="Other">
-                    <option value="rodinal">Rodinal</option>
-                    <option value="microphen">Microphen</option>
-                    <option value="perceptol">Perceptol</option>
-                </optgroup>
-                <optgroup label="Custom">
-                    <option value="custom">Custom</option>
-                </optgroup>
             </select>
         </div>
         
@@ -125,16 +69,6 @@
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-300 mb-3">Dilution:</label>
             <select id="dilutionSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
-                <option value="stock">Stock</option>
-                <option value="1+1">1+1</option>
-                <option value="1+2">1+2</option>
-                <option value="1+3">1+3</option>
-                <option value="1+4">1+4</option>
-                <option value="1+50">1+50</option>
-                <option value="1+100">1+50</option>
-                <option value="A 1+15">A 1+15 (HC-110)</option>
-                <option value="B 1+31">B 1+31 (HC-110)</option>
-                <option value="E 1+47">E 1+47 (HC-110)</option>
             </select>
         </div>
         
@@ -142,21 +76,7 @@
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-300 mb-3">ISO/EI:</label>
             <select id="isoSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="80">80</option>
-                <option value="100">100</option>
-                <option value="125">125</option>
-                <option value="200">200</option>
-                <option value="250">250</option>
-                <option value="320">320</option>
-                <option value="400" selected>400</option>
-                <option value="500">500</option>
-                <option value="800">800</option>
-                <option value="1600">1600</option>
-                <option value="3200">3200</option>
-                <option value="6400">6400</option>
-                <option value="12500">12500</option>
+                <!-- Опции загружаются динамически -->
             </select>
         </div>
         
@@ -164,18 +84,7 @@
         <div class="mb-6">
             <label class="block text-sm font-medium text-gray-300 mb-3">Temperature (°C):</label>
             <select id="temperatureSelect" class="w-full px-3 py-3 bg-gray-700 border-2 border-gray-600 rounded-lg text-white text-base focus:border-blue-500 focus:outline-none transition-colors">
-                <option value="14">14°C (+80%)</option>
-                <option value="15">15°C (+60%)</option>
-                <option value="16">16°C (+40%)</option>
-                <option value="17">17°C (+25%)</option>
-                <option value="18">18°C (+10%)</option>
-                <option value="19">19°C (+5%)</option>
-                <option value="20" selected>20°C (Standard)</option>
-                <option value="21">21°C (-5%)</option>
-                <option value="22">22°C (-15%)</option>
-                <option value="23">23°C (-25%)</option>
-                <option value="24">24°C (-35%)</option>
-                <option value="25">25°C (-45%)</option>
+                <!-- Опции загружаются динамически -->
             </select>
         </div>
         

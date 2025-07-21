@@ -1,7 +1,7 @@
 // Импорт пресетов и локализации
-import { FILM_DATA, DEVELOPER_DATA, DEVELOPMENT_TIMES, TEMPERATURE_MULTIPLIERS, FilmDevUtils } from './presets.js';
-import { LocalizationManager } from './locales.js';
-import { PresetsManager } from './presets-manager.js';
+import { getBaseTime, getAvailableDilutions, getAvailableISOs, getCombinationInfo, loadTemperatureMultipliers, loadFilmData, loadDeveloperData } from './js/filmdev-utils.js';
+import { LocalizationManager } from './js/localization.js';
+import { PresetsManager } from './js/presets-manager.js';
 
 // Конфигурация приложения
 const APP_CONFIG = {
@@ -55,14 +55,14 @@ class Settings {
         this.save();
     }
 
-    getBaseTimeInSeconds() {
+    async getBaseTimeInSeconds() {
         // Если выбрана пользовательская плёнка, используем ручные настройки
         if (this.settings.film === 'custom') {
             return this.settings.baseMinutes * 60 + this.settings.baseSeconds;
         }
         
         // Используем FilmDevUtils для получения времени из базы данных
-        const baseTime = FilmDevUtils.getBaseTime(
+        const baseTime = await getBaseTime(
             this.settings.film,
             this.settings.developer,
             this.settings.dilution,
@@ -70,7 +70,9 @@ class Settings {
         );
         
         if (baseTime !== null) {
-            return baseTime;
+            const temps = await loadTemperatureMultipliers();
+            const tempMultiplier = temps[String(this.settings.temperature)] || 1.0;
+            return baseTime * tempMultiplier;
         }
         
         // Если данных нет, используем ручные настройки
@@ -78,12 +80,12 @@ class Settings {
     }
     
     // Получить базовое время из базы данных (без fallback на ручные настройки)
-    getDatabaseTimeInSeconds() {
+    async getDatabaseTimeInSeconds() {
         if (this.settings.film === 'custom') {
             return null; // Для пользовательской плёнки нет данных в БД
         }
         
-        const result = FilmDevUtils.getBaseTime(
+        const result = await getBaseTime(
             this.settings.film,
             this.settings.developer,
             this.settings.dilution,
@@ -91,23 +93,23 @@ class Settings {
         );
         
         console.log('getDatabaseTimeInSeconds called with:', this.settings.film, this.settings.developer, this.settings.dilution, this.settings.iso);
-        console.log('FilmDevUtils.getBaseTime returned:', result);
+        console.log('getBaseTime returned:', result);
         
         return result;
     }
 
-    calculateTimes() {
-        const baseTime = this.getBaseTimeInSeconds();
+    async calculateTimes() {
+        const baseTime = await this.getBaseTimeInSeconds();
         const times = [{ label: window.app?.localization?.getBasicTimeText() || "Basic time", time: baseTime }];
         
         for (let i = 1; i <= this.settings.steps; i++) {
             let time;
             if (this.settings.process === 'push') {
                 // Push: умножаем базовое время на коэффициент
-                time = Math.round(baseTime * Math.pow(this.settings.coefficient, i));
+                time = baseTime * Math.pow(this.settings.coefficient, i);
             } else {
                 // Pull: делим базовое время на коэффициент
-                time = Math.round(baseTime / Math.pow(this.settings.coefficient, i));
+                time = baseTime / Math.pow(this.settings.coefficient, i);
             }
             times.push({ 
                 label: window.app?.localization?.getStepText(i, this.settings.process) || (this.settings.process === 'pull' ? `-${i} steps` : `+${i} steps`), 
@@ -124,8 +126,8 @@ class Settings {
         return 'ей';
     }
 
-    getCurrentCombinationInfo() {
-        return FilmDevUtils.getCombinationInfo(
+    async getCurrentCombinationInfo() {
+        return await getCombinationInfo(
             this.settings.film,
             this.settings.developer,
             this.settings.dilution,
@@ -299,7 +301,7 @@ class UI {
         });
     }
 
-    updateInputs(settings) {
+    async updateInputs(settings) {
         this.elements.baseMinutes.value = settings.get('baseMinutes');
         this.elements.baseSeconds.value = settings.get('baseSeconds');
         this.elements.coefficient.value = settings.get('coefficient');
@@ -310,14 +312,17 @@ class UI {
         this.elements.isoSelect.value = settings.get('iso');
         this.elements.temperatureSelect.value = settings.get('temperature');
         
-        this.updateCustomTimeSection();
+        await this.updateCustomTimeSection(settings);
         this.updateProcessButtons(settings.get('process'));
-        this.updateDilutionOptions(settings);
-        this.updateISOOptions(settings);
+        await this.updateFilmOptions(settings);
+        await this.updateDeveloperOptions(settings);
+        await this.updateDilutionOptions(settings);
+        await this.updateISOOptions(settings);
+        await this.updateTemperatureOptions(settings);
         this.updateInfoPanel(settings);
     }
     
-    updateCustomTimeSection(settings) {
+    async updateCustomTimeSection(settings) {
         try {
             console.log('updateCustomTimeSection called');
             // Поля времени теперь всегда видимы
@@ -332,15 +337,15 @@ class UI {
                 
                 console.log('Updating time for:', filmKey, developerKey, dilution, iso);
                 
-                // Сначала пробуем получить время из базы данных
-                let baseTimeInSeconds = settings.getDatabaseTimeInSeconds();
+                // ВСЕГДА используем getBaseTimeInSeconds (с температурой)
+                let baseTimeInSeconds = await settings.getBaseTimeInSeconds();
                 let timeSource = 'database';
                 
                 console.log('Database time:', baseTimeInSeconds);
                 
                 // Если данных нет, используем ручные настройки
                 if (baseTimeInSeconds === null) {
-                    baseTimeInSeconds = settings.getBaseTimeInSeconds();
+                    baseTimeInSeconds = settings.baseMinutes * 60 + settings.baseSeconds;
                     timeSource = 'manual';
                     console.log('Using manual time:', baseTimeInSeconds);
                 }
@@ -362,8 +367,9 @@ class UI {
                     if (filmKey === 'custom') {
                         timeSourceElement.textContent = localization?.t('manualInput') || 'Manual input';
                     } else if (timeSource === 'database') {
-                        const filmName = FILM_DATA[filmKey]?.name || filmKey;
-                        const developerName = DEVELOPER_DATA[developerKey]?.name || developerKey;
+                        const combinationInfo = await getCombinationInfo(filmKey, developerKey, dilution, iso, settings.get('temperature'));
+                        const filmName = combinationInfo.film?.name || filmKey;
+                        const developerName = combinationInfo.developer?.name || developerKey;
                         const fromDbText = localization?.t('fromDatabase') || 'From database:';
                         timeSourceElement.textContent = `${fromDbText} ${filmName} + ${developerName}`;
                     } else {
@@ -393,16 +399,16 @@ class UI {
         }
     }
     
-    updateInfoPanel(settings) {
-        const combinationInfo = settings.getCurrentCombinationInfo();
+    async updateInfoPanel(settings) {
+        const combinationInfo = await settings.getCurrentCombinationInfo();
         
-        this.elements.currentFilm.textContent = combinationInfo.film.name;
-        this.elements.currentDeveloper.textContent = combinationInfo.developer.name;
+        this.elements.currentFilm.textContent = combinationInfo.film?.name || '-';
+        this.elements.currentDeveloper.textContent = combinationInfo.developer?.name || '-';
         this.elements.currentDilution.textContent = combinationInfo.dilution;
         this.elements.currentISO.textContent = combinationInfo.iso;
         this.elements.currentTemperature.textContent = `${combinationInfo.temperature}°C`;
         this.elements.currentProcess.textContent = settings.get('process') === 'push' ? 'Push' : 'Pull';
-        this.elements.currentBaseTime.textContent = combinationInfo.formattedTime;
+        this.elements.currentBaseTime.textContent = (typeof combinationInfo.calculatedTime === 'number' && !isNaN(combinationInfo.calculatedTime)) ? formatTimerTime(combinationInfo.calculatedTime) : combinationInfo.formattedTime;
         
         // Обновляем статус данных с локализацией
         if (combinationInfo.hasData) {
@@ -414,22 +420,18 @@ class UI {
         }
     }
     
-    updateDilutionOptions(settings) {
+    async updateDilutionOptions(settings) {
+        console.log('updateDilutionOptions called', settings.get('film'), settings.get('developer'));
         const filmKey = settings.get('film');
         const developerKey = settings.get('developer');
-        
         if (filmKey === 'custom' || developerKey === 'custom') {
-            return; // Не обновляем для пользовательских настроек
+            return;
         }
-        
-        const availableDilutions = FilmDevUtils.getAvailableDilutions(filmKey, developerKey);
+        const availableDilutions = await getAvailableDilutions(filmKey, developerKey);
+        console.log('Available dilutions:', availableDilutions);
         const currentDilution = settings.get('dilution');
-        
-        // Очищаем текущие опции
         this.elements.dilutionSelect.innerHTML = '';
-        
         if (availableDilutions.length === 0) {
-            // Если нет данных, добавляем стандартные разведения
             const standardDilutions = ['stock', '1+1', '1+3'];
             standardDilutions.forEach(dilution => {
                 const option = document.createElement('option');
@@ -438,7 +440,6 @@ class UI {
                 this.elements.dilutionSelect.appendChild(option);
             });
         } else {
-            // Добавляем доступные разведения
             availableDilutions.forEach(dilution => {
                 const option = document.createElement('option');
                 option.value = dilution;
@@ -446,8 +447,6 @@ class UI {
                 this.elements.dilutionSelect.appendChild(option);
             });
         }
-        
-        // Устанавливаем значение, если оно доступно
         if (availableDilutions.includes(currentDilution)) {
             this.elements.dilutionSelect.value = currentDilution;
         } else if (availableDilutions.length > 0) {
@@ -456,7 +455,7 @@ class UI {
         }
     }
     
-    updateISOOptions(settings) {
+    async updateISOOptions(settings) {
         const filmKey = settings.get('film');
         const developerKey = settings.get('developer');
         const dilution = settings.get('dilution');
@@ -465,7 +464,7 @@ class UI {
             return; // Не обновляем для пользовательских настроек
         }
         
-        const availableISOs = FilmDevUtils.getAvailableISOs(filmKey, developerKey, dilution);
+        const availableISOs = await getAvailableISOs(filmKey, developerKey, dilution);
         const currentISO = settings.get('iso');
         
         // Очищаем текущие опции
@@ -498,22 +497,243 @@ class UI {
             this.elements.isoSelect.value = availableISOs[0];
         }
     }
+
+    async updateTemperatureOptions(settings) {
+        console.log('updateTemperatureOptions called');
+        try {
+            const temps = await loadTemperatureMultipliers();
+            const currentTemp = settings.get('temperature');
+            
+            // Очищаем текущие опции
+            this.elements.temperatureSelect.innerHTML = '';
+            
+            // Добавляем температурные опции
+            Object.keys(temps).forEach(temp => {
+                const option = document.createElement('option');
+                option.value = temp;
+                
+                const tempNum = parseInt(temp);
+                let label = `${temp}°C`;
+                
+                if (tempNum === 20) {
+                    label += ' (Standard)';
+                } else if (tempNum < 20) {
+                    const percent = Math.round((temps[temp] - 1) * 100);
+                    label += ` (+${percent}%)`;
+                } else {
+                    const percent = Math.round((1 - temps[temp]) * 100);
+                    label += ` (-${percent}%)`;
+                }
+                
+                option.textContent = label;
+                this.elements.temperatureSelect.appendChild(option);
+            });
+            
+            // Устанавливаем значение, если оно доступно
+            if (temps[currentTemp]) {
+                this.elements.temperatureSelect.value = currentTemp;
+            } else {
+                settings.set('temperature', '20');
+                this.elements.temperatureSelect.value = '20';
+            }
+        } catch (error) {
+            console.error('Error loading temperature options:', error);
+            // Fallback к стандартным опциям
+            const standardTemps = ['18', '19', '20', '21', '22'];
+            standardTemps.forEach(temp => {
+                const option = document.createElement('option');
+                option.value = temp;
+                option.textContent = `${temp}°C`;
+                this.elements.temperatureSelect.appendChild(option);
+            });
+            this.elements.temperatureSelect.value = '20';
+        }
+    }
+
+    async updateFilmOptions(settings) {
+        console.log('updateFilmOptions called');
+        try {
+            const films = await loadFilmData();
+            const currentFilm = settings.get('film');
+            
+            // Очищаем текущие опции
+            this.elements.filmSelect.innerHTML = '';
+            
+            // Группируем плёнки по производителю
+            const groupedFilms = {};
+            Object.keys(films).forEach(filmKey => {
+                const film = films[filmKey];
+                const manufacturer = film.manufacturer || 'Other';
+                if (!groupedFilms[manufacturer]) {
+                    groupedFilms[manufacturer] = [];
+                }
+                groupedFilms[manufacturer].push({ key: filmKey, film });
+            });
+            
+            // Добавляем опции по группам
+            Object.keys(groupedFilms).forEach(manufacturer => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = manufacturer;
+                
+                groupedFilms[manufacturer].forEach(({ key, film }) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = film.name;
+                    optgroup.appendChild(option);
+                });
+                
+                this.elements.filmSelect.appendChild(optgroup);
+            });
+            
+            // Добавляем опцию "Custom"
+            const customOptgroup = document.createElement('optgroup');
+            customOptgroup.label = 'Custom';
+            const customOption = document.createElement('option');
+            customOption.value = 'custom';
+            customOption.textContent = 'Manual input';
+            customOptgroup.appendChild(customOption);
+            this.elements.filmSelect.appendChild(customOptgroup);
+            
+            // Устанавливаем значение, если оно доступно
+            if (films[currentFilm]) {
+                this.elements.filmSelect.value = currentFilm;
+            } else if (currentFilm === 'custom') {
+                this.elements.filmSelect.value = 'custom';
+            } else if (Object.keys(films).length > 0) {
+                const firstFilm = Object.keys(films)[0];
+                settings.set('film', firstFilm);
+                this.elements.filmSelect.value = firstFilm;
+            }
+        } catch (error) {
+            console.error('Error loading film options:', error);
+            // Fallback к стандартным опциям
+            const fallbackFilms = [
+                { value: 'ilford-hp5-plus', name: 'Ilford HP5+' },
+                { value: 'kodak-tri-x', name: 'Kodak Tri-X 400' },
+                { value: 'custom', name: 'Manual input' }
+            ];
+            
+            fallbackFilms.forEach(film => {
+                const option = document.createElement('option');
+                option.value = film.value;
+                option.textContent = film.name;
+                this.elements.filmSelect.appendChild(option);
+            });
+            
+            this.elements.filmSelect.value = 'ilford-hp5-plus';
+        }
+    }
+
+    async updateDeveloperOptions(settings) {
+        console.log('updateDeveloperOptions called');
+        try {
+            const developers = await loadDeveloperData();
+            const currentDeveloper = settings.get('developer');
+            
+            // Очищаем текущие опции
+            this.elements.developerSelect.innerHTML = '';
+            
+            // Группируем проявители по производителю
+            const groupedDevelopers = {};
+            Object.keys(developers).forEach(developerKey => {
+                const developer = developers[developerKey];
+                const manufacturer = developer.manufacturer || 'Other';
+                if (!groupedDevelopers[manufacturer]) {
+                    groupedDevelopers[manufacturer] = [];
+                }
+                groupedDevelopers[manufacturer].push({ key: developerKey, developer });
+            });
+            
+            // Добавляем опции по группам
+            Object.keys(groupedDevelopers).forEach(manufacturer => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = manufacturer;
+                
+                groupedDevelopers[manufacturer].forEach(({ key, developer }) => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = developer.name;
+                    optgroup.appendChild(option);
+                });
+                
+                this.elements.developerSelect.appendChild(optgroup);
+            });
+            
+            // Добавляем опцию "Custom"
+            const customOptgroup = document.createElement('optgroup');
+            customOptgroup.label = 'Custom';
+            const customOption = document.createElement('option');
+            customOption.value = 'custom';
+            customOption.textContent = 'Custom';
+            customOptgroup.appendChild(customOption);
+            this.elements.developerSelect.appendChild(customOptgroup);
+            
+            // Устанавливаем значение, если оно доступно
+            if (developers[currentDeveloper]) {
+                this.elements.developerSelect.value = currentDeveloper;
+            } else if (currentDeveloper === 'custom') {
+                this.elements.developerSelect.value = 'custom';
+            } else if (Object.keys(developers).length > 0) {
+                const firstDeveloper = Object.keys(developers)[0];
+                settings.set('developer', firstDeveloper);
+                this.elements.developerSelect.value = firstDeveloper;
+            }
+        } catch (error) {
+            console.error('Error loading developer options:', error);
+            // Fallback к стандартным опциям
+            const fallbackDevelopers = [
+                { value: 'ilford-id11', name: 'ID-11' },
+                { value: 'kodak-d76', name: 'D-76' },
+                { value: 'custom', name: 'Custom' }
+            ];
+            
+            fallbackDevelopers.forEach(developer => {
+                const option = document.createElement('option');
+                option.value = developer.value;
+                option.textContent = developer.name;
+                this.elements.developerSelect.appendChild(option);
+            });
+            
+            this.elements.developerSelect.value = 'ilford-id11';
+        }
+    }
     
 
 
-    renderResults(times, formatTime) {
+    async renderResults(times, formatTime) {
+        console.warn('🔥 renderResults called 🔥');
         this.elements.resultsContainer.innerHTML = '';
         
         times.forEach(item => {
+            let timeDisplay = (typeof item.time !== 'number' || isNaN(item.time)) ? 'N/A' : roundToQuarterMinute(item.time);
+            console.log('renderResults: item', item, 'timeDisplay', timeDisplay);
+            
+            // Вычисляем округленное время в секундах для таймера
+            let roundedTimeInSeconds = item.time;
+            if (typeof item.time === 'number' && !isNaN(item.time)) {
+                const mins = Math.floor(item.time / 60);
+                let secs = item.time % 60;
+                if (secs < 8) secs = 0;
+                else if (secs < 23) secs = 15;
+                else if (secs < 38) secs = 30;
+                else if (secs < 53) secs = 45;
+                else {
+                    secs = 0;
+                    roundedTimeInSeconds = (mins + 1) * 60;
+                }
+                roundedTimeInSeconds = mins * 60 + secs;
+                console.log(`Timer: original ${item.time}s (${formatTimerTime(item.time)}) -> rounded ${roundedTimeInSeconds}s (${formatTimerTime(roundedTimeInSeconds)})`);
+            }
+            
             const resultItem = document.createElement('div');
             resultItem.className = 'bg-gray-700 rounded-xl p-4 mb-3 flex items-center justify-between';
             resultItem.innerHTML = `
                 <div class="flex-1">
                     <div class="text-gray-400 text-sm mb-1">${item.label}</div>
-                    <div class="text-2xl font-bold text-white">${formatTime(item.time)}</div>
+                    <div class="text-2xl font-bold text-white">${timeDisplay}</div>
                 </div>
                 <button class="bg-blue-600 hover:bg-blue-700 active:scale-95 px-4 py-3 rounded-lg text-white font-semibold flex items-center gap-2 transition-all duration-200 ml-4" 
-                        data-time="${item.time}" data-label="${item.label}">
+                        data-time="${roundedTimeInSeconds}" data-label="${item.label}">
                     <span class="text-lg">⏱</span>
                     <span>${window.app?.localization?.t('timer') || 'Timer'}</span>
                 </button>
@@ -559,6 +779,26 @@ class UI {
 
 }
 
+function formatTimerTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function roundToQuarterMinute(seconds) {
+    let mins = Math.floor(seconds / 60);
+    let secs = seconds % 60;
+    if (secs < 8) secs = 0;
+    else if (secs < 23) secs = 15;
+    else if (secs < 38) secs = 30;
+    else if (secs < 53) secs = 45;
+    else {
+        secs = 0;
+        mins += 1;
+    }
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 // Основной класс приложения
 class FilmDevCalculator {
     constructor() {
@@ -598,40 +838,44 @@ class FilmDevCalculator {
         });
 
         // Обработчики для пресетов
-        this.ui.elements.filmSelect.addEventListener('change', (e) => {
+        this.ui.elements.filmSelect.addEventListener('change', async (e) => {
             console.log('Film changed to:', e.target.value);
             this.settings.set('film', e.target.value);
-            this.ui.updateCustomTimeSection(this.settings);
-            this.ui.updateDilutionOptions(this.settings);
-            this.ui.updateISOOptions(this.settings);
-            this.ui.updateInfoPanel(this.settings);
+            await this.ui.updateDilutionOptions(this.settings);
+            await this.ui.updateISOOptions(this.settings);
+            await this.ui.updateTemperatureOptions(this.settings);
+            await this.ui.updateCustomTimeSection(this.settings);
+            await this.ui.updateInfoPanel(this.settings);
         });
 
-        this.ui.elements.developerSelect.addEventListener('change', (e) => {
+        this.ui.elements.developerSelect.addEventListener('change', async (e) => {
             console.log('Developer changed to:', e.target.value);
             this.settings.set('developer', e.target.value);
-            this.ui.updateCustomTimeSection(this.settings);
-            this.ui.updateDilutionOptions(this.settings);
-            this.ui.updateISOOptions(this.settings);
-            this.ui.updateInfoPanel(this.settings);
+            await this.ui.updateDilutionOptions(this.settings);
+            await this.ui.updateISOOptions(this.settings);
+            await this.ui.updateTemperatureOptions(this.settings);
+            await this.ui.updateCustomTimeSection(this.settings);
+            await this.ui.updateInfoPanel(this.settings);
         });
 
-        this.ui.elements.dilutionSelect.addEventListener('change', (e) => {
+        this.ui.elements.dilutionSelect.addEventListener('change', async (e) => {
             this.settings.set('dilution', e.target.value);
-            this.ui.updateCustomTimeSection(this.settings);
-            this.ui.updateISOOptions(this.settings);
-            this.ui.updateInfoPanel(this.settings);
+            await this.ui.updateISOOptions(this.settings);
+            await this.ui.updateTemperatureOptions(this.settings);
+            await this.ui.updateCustomTimeSection(this.settings);
+            await this.ui.updateInfoPanel(this.settings);
         });
 
-        this.ui.elements.isoSelect.addEventListener('change', (e) => {
+        this.ui.elements.isoSelect.addEventListener('change', async (e) => {
             this.settings.set('iso', parseInt(e.target.value));
-            this.ui.updateCustomTimeSection(this.settings);
+            await this.ui.updateCustomTimeSection(this.settings);
             this.ui.updateInfoPanel(this.settings);
         });
 
-        this.ui.elements.temperatureSelect.addEventListener('change', (e) => {
+        this.ui.elements.temperatureSelect.addEventListener('change', async (e) => {
             this.settings.set('temperature', parseInt(e.target.value));
-            this.ui.updateInfoPanel(this.settings);
+            await this.ui.updateCustomTimeSection(this.settings);
+            await this.ui.updateInfoPanel(this.settings);
         });
 
         // Обработчики для кнопок процесса
@@ -659,7 +903,10 @@ class FilmDevCalculator {
         }
 
         // Обработчики для кнопок
-        this.ui.elements.calculateBtn.addEventListener('click', () => this.renderResults());
+        this.ui.elements.calculateBtn.addEventListener('click', () => {
+            console.warn('🔥 Calculate button clicked 🔥');
+            this.renderResults();
+        });
         this.ui.elements.startPauseButton.addEventListener('click', () => this.timer.toggle());
         this.ui.elements.resetButton.addEventListener('click', () => this.timer.reset());
         this.ui.elements.backButton.addEventListener('click', () => this.closeTimer());
@@ -670,6 +917,7 @@ class FilmDevCalculator {
                 const button = e.target.closest('button[data-time]');
                 const time = parseInt(button.dataset.time);
                 const label = button.dataset.label;
+                console.log('Timer button clicked - time:', time, 'label:', label);
                 this.startTimer(time, label);
             }
         });
@@ -677,7 +925,7 @@ class FilmDevCalculator {
 
     setupTimer() {
         this.timer.onUpdate = (remainingTime, totalTime) => {
-            this.ui.updateTimerDisplay(this.formatTime(remainingTime), this.timer.isRunning);
+            this.ui.updateTimerDisplay(formatTimerTime(remainingTime), this.timer.isRunning);
             
             const progressPercent = (remainingTime / totalTime) * 100;
             this.ui.updateProgress(progressPercent);
@@ -695,17 +943,17 @@ class FilmDevCalculator {
     }
 
     formatTime(totalSeconds) {
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+        return formatTimerTime(totalSeconds);
     }
 
-    renderResults() {
-        const times = this.settings.calculateTimes();
-        this.ui.renderResults(times, (time) => this.formatTime(time));
+    async renderResults() {
+        const times = await this.settings.calculateTimes();
+        console.log('Render results - times:', times);
+        await this.ui.renderResults(times, (time) => formatTimerTime(time));
     }
 
     startTimer(timeInSeconds, label) {
+        console.log('startTimer called - timeInSeconds:', timeInSeconds, 'label:', label);
         this.timer.start(timeInSeconds, label);
         this.ui.showTimer(label);
     }

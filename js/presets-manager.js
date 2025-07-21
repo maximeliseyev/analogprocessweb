@@ -1,7 +1,4 @@
-// Менеджер пресетов для калькулятора проявки плёнки
-// Версия: 1.0.0
-
-import { FILM_DATA, DEVELOPER_DATA, DEVELOPMENT_TIMES, FilmDevUtils } from './presets.js';
+import { loadFilmData, loadDeveloperData, loadDevelopmentTimes } from './filmdev-utils.js';
 
 export class PresetsManager {
     constructor() {
@@ -154,7 +151,7 @@ export class PresetsManager {
         }
     }
 
-    loadFilms() {
+    async loadFilms() {
         // Сначала убедимся, что вкладка видна
         const filmsTab = document.getElementById('filmsTab');
         if (!filmsTab) {
@@ -200,9 +197,10 @@ export class PresetsManager {
         }
 
         filmsList.innerHTML = '';
-        console.log('Loading films, count:', Object.keys(FILM_DATA).length);
+        console.log('Loading films, count:', Object.keys(FilmDevUtils.FILM_DATA).length);
         
-        Object.entries(FILM_DATA).forEach(([id, film]) => {
+        const films = await loadFilmData();
+        Object.entries(films).forEach(([id, film]) => {
             const filmItem = this.createListItem(id, film, 'film');
             filmsList.appendChild(filmItem);
         });
@@ -210,7 +208,7 @@ export class PresetsManager {
         console.log('Films loaded, DOM elements:', filmsList.children.length);
     }
 
-    loadDevelopers() {
+    async loadDevelopers() {
         // Сначала убедимся, что вкладка видна
         const developersTab = document.getElementById('developersTab');
         if (!developersTab) {
@@ -257,13 +255,14 @@ export class PresetsManager {
 
         developersList.innerHTML = '';
         
-        Object.entries(DEVELOPER_DATA).forEach(([id, developer]) => {
+        const developers = await loadDeveloperData();
+        Object.entries(developers).forEach(([id, developer]) => {
             const developerItem = this.createListItem(id, developer, 'developer');
             developersList.appendChild(developerItem);
         });
     }
 
-    loadTimes() {
+    async loadTimes() {
         // Сначала убедимся, что вкладка видна
         const timesTab = document.getElementById('timesTab');
         if (!timesTab) {
@@ -310,7 +309,9 @@ export class PresetsManager {
 
         timesList.innerHTML = '';
         
-        Object.entries(DEVELOPMENT_TIMES).forEach(([key, time]) => {
+        // Асинхронная загрузка времен проявки
+        const times = await loadDevelopmentTimes();
+        Object.entries(times).forEach(([key, time]) => {
             const [film, developer, dilution, iso] = key.split('|');
             const timeItem = this.createTimeListItem(key, time, film, developer, dilution, iso);
             timesList.appendChild(timeItem);
@@ -369,8 +370,8 @@ export class PresetsManager {
         const info = document.createElement('div');
         info.className = 'flex-1';
         
-        const filmName = FILM_DATA[film]?.name || film;
-        const developerName = DEVELOPER_DATA[developer]?.name || developer;
+        const filmName = FilmDevUtils.FILM_DATA[film]?.name || film;
+        const developerName = FilmDevUtils.DEVELOPER_DATA[developer]?.name || developer;
         
         const name = document.createElement('div');
         name.className = 'text-white font-medium';
@@ -482,7 +483,7 @@ export class PresetsManager {
         
         // Обновляем данные в памяти
         if (type === 'film') {
-            FILM_DATA[data.id] = {
+            FilmDevUtils.FILM_DATA[data.id] = {
                 name: data.name,
                 manufacturer: data.manufacturer,
                 type: 'black-white',
@@ -490,16 +491,16 @@ export class PresetsManager {
                 defaultISO: data.defaultISO
             };
             // Сохраняем в localStorage
-            this.saveToLocalStorage('customFilms', FILM_DATA);
+            this.saveToLocalStorage('customFilms', FilmDevUtils.FILM_DATA);
         } else if (type === 'developer') {
-            DEVELOPER_DATA[data.id] = {
+            FilmDevUtils.DEVELOPER_DATA[data.id] = {
                 name: data.name,
                 manufacturer: data.manufacturer,
                 type: 'black-white',
                 description: data.description
             };
             // Сохраняем в localStorage
-            this.saveToLocalStorage('customDevelopers', DEVELOPER_DATA);
+            this.saveToLocalStorage('customDevelopers', FilmDevUtils.DEVELOPER_DATA);
         }
         
         // Перезагружаем текущую вкладку
@@ -518,17 +519,16 @@ export class PresetsManager {
         
         // Удаляем из данных в памяти
         if (type === 'film') {
-            delete FILM_DATA[id];
+            delete FilmDevUtils.FILM_DATA[id];
             // Сохраняем в localStorage
-            this.saveToLocalStorage('customFilms', FILM_DATA);
+            this.saveToLocalStorage('customFilms', FilmDevUtils.FILM_DATA);
         } else if (type === 'developer') {
-            delete DEVELOPER_DATA[id];
+            delete FilmDevUtils.DEVELOPER_DATA[id];
             // Сохраняем в localStorage
-            this.saveToLocalStorage('customDevelopers', DEVELOPER_DATA);
+            this.saveToLocalStorage('customDevelopers', FilmDevUtils.DEVELOPER_DATA);
         } else if (type === 'time') {
-            delete DEVELOPMENT_TIMES[id];
-            // Сохраняем в localStorage
-            this.saveToLocalStorage('customTimes', DEVELOPMENT_TIMES);
+            // Удаление времен проявки не реализовано, так как они загружаются асинхронно
+            console.warn('Time deletion not implemented for custom times.');
         }
         
         // Перезагружаем текущую вкладку
@@ -588,15 +588,15 @@ export class PresetsManager {
         const customTimes = this.loadFromLocalStorage('customTimes');
         
         if (customFilms) {
-            Object.assign(FILM_DATA, customFilms);
+            Object.assign(FilmDevUtils.FILM_DATA, customFilms);
         }
         
         if (customDevelopers) {
-            Object.assign(DEVELOPER_DATA, customDevelopers);
+            Object.assign(FilmDevUtils.DEVELOPER_DATA, customDevelopers);
         }
         
         if (customTimes) {
-            Object.assign(DEVELOPMENT_TIMES, customTimes);
+            // Object.assign(DEVELOPMENT_TIMES, customTimes); // Удалено
         }
         
         console.log('Loaded custom presets from localStorage');
