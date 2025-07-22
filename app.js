@@ -2,7 +2,6 @@
 import { getBaseTime, getAvailableDilutions, getAvailableISOs, getCombinationInfo, loadTemperatureMultipliers, loadFilmData, loadDeveloperData } from './js/filmdev-utils.js';
 import { LocalizationManager } from './js/localization.js';
 import { PresetsManager } from './js/presets-manager.js';
-import { AGITATION_PRESETS, AGITATION_PRESET_DESCRIPTIONS } from './js/agitation-presets.js';
 
 // Конфигурация приложения
 const APP_CONFIG = {
@@ -13,7 +12,7 @@ const APP_CONFIG = {
         baseMinutes: 7,
         baseSeconds: 0,
         coefficient: 1.33,
-        process: 'push', // 'push' or 'pull'
+        process: 'push', // 'push' или 'pull'
         steps: 3,
         film: 'ilford-hp5-plus',
         developer: 'ilford-id11',
@@ -777,21 +776,6 @@ class UI {
         this.elements.timerDisplay.classList.add('animate-pulse-slow');
     }
     
-    // --- UI: отображение этапа ажитации ---
-    updateAgitationStage(stage, stageIdx, totalStages, remaining) {
-        const timerTitle = this.elements.timerTitle;
-        const timerDisplay = this.elements.timerDisplay;
-        if (!stage) return;
-        let label = '';
-        if (stage.type === 'agitate') {
-            label = `Ажитация${stage.turns ? `: ${stage.turns} оборот(ов)` : ''}`;
-            if (stage.note) label += ` — ${stage.note}`;
-        } else {
-            label = 'Отдых';
-        }
-        timerTitle.textContent = `${label} (${stageIdx+1}/${totalStages})`;
-        timerDisplay.textContent = formatTimerTime(remaining !== undefined ? remaining : stage.seconds);
-    }
 
 }
 
@@ -813,143 +797,6 @@ function roundToQuarterMinute(seconds) {
         mins += 1;
     }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-// --- Agitation Modal Logic ---
-
-function showAgitationModal(onSelect) {
-  const modal = document.getElementById('agitationModal');
-  const list = document.getElementById('agitationPresetList');
-  const cancelBtn = document.getElementById('agitationModalCancel');
-  list.innerHTML = '';
-
-  Object.keys(AGITATION_PRESETS).forEach(key => {
-    const desc = AGITATION_PRESET_DESCRIPTIONS[key] || key;
-    const btn = document.createElement('button');
-    btn.className = 'w-full text-left p-3 rounded-lg bg-gray-700 text-white hover:bg-blue-600 transition mb-1';
-    btn.innerHTML = `<div class="font-bold mb-1">${desc.split(':')[0]}</div><div class="text-sm text-gray-300">${desc.split(':').slice(1).join(':')}</div>`;
-    btn.onclick = () => {
-      modal.classList.add('hidden');
-      onSelect(key);
-    };
-    list.appendChild(btn);
-  });
-
-  cancelBtn.onclick = () => {
-    modal.classList.add('hidden');
-  };
-
-  modal.classList.remove('hidden');
-}
-
-// --- Построение этапов ажитации ---
-function buildAgitationSteps(totalSeconds, presetKey) {
-  const preset = AGITATION_PRESETS[presetKey];
-  if (!preset || preset.length === 0 || presetKey === 'none' || presetKey === 'custom') {
-    // Нет этапов — обычный таймер
-    return [{ type: 'full', seconds: totalSeconds }];
-  }
-  let steps = [];
-  let elapsed = 0;
-  let minute = 1;
-  let remaining = totalSeconds;
-  for (let i = 0; i < preset.length; i++) {
-    const p = preset[i];
-    if (p.repeat === 'auto') {
-      // Автоматически повторять до конца времени
-      let repeatCount = 0;
-      if (p.startMinute) {
-        // Для RAE: каждые 5 минут после 10-й
-        let t = p.startMinute * 60;
-        while (t < totalSeconds) {
-          steps.push({
-            type: 'agitate',
-            seconds: p.agitate,
-            turns: p.turns,
-            note: p.note,
-            label: `${t/60}-я минута: ${p.note}`
-          });
-          if (t + p.agitate < totalSeconds) {
-            steps.push({ type: 'rest', seconds: Math.min(p.rest, totalSeconds - t - p.agitate), label: 'Отдых' });
-          }
-          t += 5 * 60;
-        }
-        continue;
-      } else {
-        // Обычный auto-repeat
-        while (remaining >= p.agitate + p.rest) {
-          steps.push({ type: 'agitate', seconds: p.agitate, turns: p.turns, note: p.note, label: p.label });
-          steps.push({ type: 'rest', seconds: p.rest, label: 'Отдых' });
-          remaining -= (p.agitate + p.rest);
-          repeatCount++;
-        }
-        // Если осталось время — добавить финальный этап
-        if (remaining > 0) {
-          if (remaining >= p.agitate) {
-            steps.push({ type: 'agitate', seconds: p.agitate, turns: p.turns, note: p.note, label: p.label });
-            remaining -= p.agitate;
-          }
-          if (remaining > 0) {
-            steps.push({ type: 'rest', seconds: remaining, label: 'Отдых' });
-          }
-        }
-        continue;
-      }
-    }
-    // Обычный repeat
-    for (let r = 0; r < (p.repeat || 1); r++) {
-      if (remaining <= 0) break;
-      if (p.agitate > 0) {
-        steps.push({ type: 'agitate', seconds: Math.min(p.agitate, remaining), turns: p.turns, note: p.note, label: p.label });
-        remaining -= Math.min(p.agitate, remaining);
-      }
-      if (p.rest > 0 && remaining > 0) {
-        steps.push({ type: 'rest', seconds: Math.min(p.rest, remaining), label: 'Отдых' });
-        remaining -= Math.min(p.rest, remaining);
-      }
-    }
-  }
-  // Если осталось время — добавить финальный отдых
-  if (remaining > 0) {
-    steps.push({ type: 'rest', seconds: remaining, label: 'Отдых' });
-  }
-  return steps;
-}
-
-// --- Agitation Timer ---
-class AgitationTimer {
-  constructor(steps, onStage, onComplete) {
-    this.steps = steps;
-    this.onStage = onStage;
-    this.onComplete = onComplete;
-    this.currentStage = 0;
-    this.remaining = steps[0]?.seconds || 0;
-    this.interval = null;
-  }
-  start() {
-    this.showStage();
-    this.interval = setInterval(() => {
-      this.remaining--;
-      if (this.remaining <= 0) {
-        this.currentStage++;
-        if (this.currentStage >= this.steps.length) {
-          clearInterval(this.interval);
-          this.onComplete && this.onComplete();
-          return;
-        }
-        this.remaining = this.steps[this.currentStage].seconds;
-        this.showStage();
-      } else {
-        this.onStage && this.onStage(this.steps[this.currentStage], this.currentStage, this.steps.length, this.remaining);
-      }
-    }, 1000);
-  }
-  showStage() {
-    this.onStage && this.onStage(this.steps[this.currentStage], this.currentStage, this.steps.length, this.remaining);
-  }
-  stop() {
-    clearInterval(this.interval);
-  }
 }
 
 // Основной класс приложения
@@ -1107,37 +954,13 @@ class FilmDevCalculator {
 
     startTimer(timeInSeconds, label) {
         console.log('startTimer called - timeInSeconds:', timeInSeconds, 'label:', label);
-        const agitationKey = this.settings.get('agitationPreset');
-        if (!agitationKey || agitationKey === 'none' || agitationKey === 'custom') {
-            this.timer.start(timeInSeconds, label);
-            this.ui.showTimer(label);
-            return;
-        }
-        // Строим этапы
-        const steps = buildAgitationSteps(timeInSeconds, agitationKey);
+        this.timer.start(timeInSeconds, label);
         this.ui.showTimer(label);
-        let agitationTimer = new AgitationTimer(
-            steps,
-            (stage, idx, total, remaining) => {
-                this.ui.updateAgitationStage(stage, idx, total, remaining);
-                this.ui.updateTimerDisplay(formatTimerTime(remaining !== undefined ? remaining : stage.seconds), true);
-            },
-            () => {
-                this.ui.showComplete();
-            }
-        );
-        agitationTimer.start();
-        // Сохраняем ссылку для возможности остановки
-        this.agitationTimer = agitationTimer;
     }
 
     closeTimer() {
         this.timer.stop();
         this.ui.hideTimer();
-        if (this.agitationTimer) {
-            this.agitationTimer.stop();
-            this.agitationTimer = null;
-        }
     }
 
     async registerServiceWorker() {
@@ -1151,52 +974,6 @@ class FilmDevCalculator {
         }
     }
 }
-
-// --- Переопределяем запуск таймера ---
-const origStartTimer = FilmDevCalculator.prototype.startTimer;
-FilmDevCalculator.prototype.startTimer = function(timeInSeconds, label) {
-  const agitationKey = this.settings.get('agitationPreset');
-  if (!agitationKey) {
-    showAgitationModal((selectedKey) => {
-      this.settings.set('agitationPreset', selectedKey);
-      this.startTimer(timeInSeconds, label); // рекурсивно, теперь с выбранным режимом
-    });
-    return;
-  }
-  if (agitationKey === 'none' || agitationKey === 'custom') {
-    this.timer.start(timeInSeconds, label);
-    this.ui.showTimer(label);
-    return;
-  }
-  // Строим этапы
-  const steps = buildAgitationSteps(timeInSeconds, agitationKey);
-  this.ui.showTimer(label);
-  let agitationTimer = new AgitationTimer(
-    steps,
-    (stage, idx, total, remaining) => {
-      this.ui.updateAgitationStage(stage, idx, total, remaining);
-      this.ui.updateTimerDisplay(formatTimerTime(remaining !== undefined ? remaining : stage.seconds), true);
-    },
-    () => {
-      this.ui.showComplete();
-      this.settings.set('agitationPreset', null); // сбрасываем режим после завершения
-    }
-  );
-  agitationTimer.start();
-  // Сохраняем ссылку для возможности остановки
-  this.agitationTimer = agitationTimer;
-};
-
-// Сброс режима при закрытии таймера
-FilmDevCalculator.prototype.closeTimer = function() {
-  this.timer.stop();
-  this.ui.hideTimer();
-  if (this.agitationTimer) {
-    this.agitationTimer.stop();
-    this.agitationTimer = null;
-  }
-  this.settings.set('agitationPreset', null);
-};
 
 // Инициализация приложения
 let app;
