@@ -2,6 +2,8 @@
 
 A modern web app for calculating film development times with a built-in timer. Works offline as a PWA and supports mobile devices.
 
+https://maximeliseyev.github.io/filmdevcalculator/
+
 ## Features
 - Real database of film + developer + dilution + ISO times
 - Dynamic options for dilution and ISO
