@@ -1,7 +1,7 @@
 {
-  "name": "Калькулятор проявки плёнки",
-  "short_name": "Проявка",
-  "description": "Калькулятор времени проявки плёнки с поддержкой push-процесса",
+  "name": "filmdevcalculator",
+  "short_name": "FilmDevCalc",
+  "description": "Calculator for film push/pull processing",
   "start_url": "/filmdevcalculator/",
   "display": "standalone",
   "orientation": "portrait",
@@ -34,5 +34,5 @@
   "prefer_related_applications": false,
   "apple-mobile-web-app-capable": "yes",
   "apple-mobile-web-app-status-bar-style": "black-translucent",
-  "apple-mobile-web-app-title": "Проявка"
+  "apple-mobile-web-app-title": "FilmDevCalc"
 }
