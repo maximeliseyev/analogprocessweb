@@ -2,7 +2,7 @@
   "name": "Калькулятор проявки плёнки",
   "short_name": "Проявка",
   "description": "Калькулятор времени проявки плёнки с поддержкой push-процесса",
-  "start_url": "/",
+  "start_url": "/filmdevcalculator/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#000000",
