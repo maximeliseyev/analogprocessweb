@@ -16,6 +16,7 @@ import {
   type CombinationInfo
 } from './utils/filmdev-utils';
 import { useLocalization } from './hooks/useLocalization';
+import { getAppVersion } from './utils/version';
 
 // Типы для TypeScript
 interface Settings {
@@ -70,11 +71,19 @@ function App() {
   const [combinationInfo, setCombinationInfo] = useState<CombinationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTimer, setActiveTimer] = useState<ActiveTimer | null>(null);
+  const [appVersion, setAppVersion] = useState<string>('2.0.0');
 
   // Загрузка данных при инициализации
   useEffect(() => {
     loadData();
     loadSettings();
+    // Загружаем версию приложения
+    getAppVersion().then(version => {
+      console.log('App version set to:', version);
+      setAppVersion(version);
+    }).catch(error => {
+      console.error('Failed to load app version:', error);
+    });
   }, []);
 
   const updateAvailableOptions = useCallback(async () => {
@@ -168,7 +177,7 @@ function App() {
     }
   };
 
-  const saveSettings = (newSettings: Partial<Settings>) => {
+  const saveSettings = useCallback((newSettings: Partial<Settings>) => {
     const updatedSettings = { ...settings, ...newSettings };
     setSettings(updatedSettings);
     try {
@@ -176,7 +185,7 @@ function App() {
     } catch (error) {
       console.error('Error saving settings:', error);
     }
-  };
+  }, [settings]);
 
   // Обновление полей ввода базового времени при изменении комбинации
   useEffect(() => {
@@ -524,7 +533,14 @@ function App() {
               </div>
             ))}
           </div>
-        )}
+                )}
+      </div>
+
+      {/* Footer with version */}
+      <div className="text-center mt-8 mb-4">
+        <div className="text-xs text-gray-500">
+          {t('title')} v{appVersion}
+        </div>
       </div>
 
       {/* Timer Component */}
