@@ -1,4 +1,22 @@
 {
+  "name": "filmdevcalculator",
+  "version": "1.0.0",
+  "description": "A modern web app for calculating film development times with a built-in timer. Works offline as a PWA and supports mobile devices.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maximeliseyev/filmdevcalculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maximeliseyev/filmdevcalculator/issues"
+  },
+  "homepage": "https://github.com/maximeliseyev/filmdevcalculator#readme",
   "devDependencies": {
     "tailwindcss": "^4.1.11"
   }
