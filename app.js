@@ -1,12 +1,22 @@
-// Импорт пресетов и локализации
 import { getBaseTime, getAvailableDilutions, getAvailableISOs, getCombinationInfo, loadTemperatureMultipliers, loadFilmData, loadDeveloperData } from './js/filmdev-utils.js';
 import { LocalizationManager } from './js/localization.js';
 import { PresetsManager } from './js/presets-manager.js';
 import { AGITATION_PRESETS, AGITATION_PRESET_DESCRIPTIONS } from './js/agitation-presets.js';
 
-// Конфигурация приложения
+
+async function getVersion() {
+    try {
+      const response = await fetch('/VERSION');
+      if (!response.ok) throw new Error('File not found');
+      return await response.text();
+    } catch (error) {
+      console.error('Error reading VERSION:', error);
+      return '0.0.0';
+    }
+  }
+
 const APP_CONFIG = {
-    version: '3.0.0',
+    version: await getVersion(),
     cacheName: 'film-dev-calculator-v3',
     vibrationPattern: [500, 200, 500, 200, 500],
     defaultSettings: {
@@ -16,7 +26,7 @@ const APP_CONFIG = {
         process: 'push', // 'push' or 'pull'
         steps: 3,
         film: 'ilford-hp5-plus',
-        developer: 'ilford-id11',
+        developer: 'kodak-d76',
         dilution: 'stock',
         iso: 400,
         temperature: 20
