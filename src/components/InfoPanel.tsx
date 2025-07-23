@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocalization } from '../hooks/useLocalization';
 import { Settings } from '../types';
 import { type CombinationInfo, formatTime } from '../utils/filmdev-utils';
+import { Card, Badge } from './ui';
 
 interface InfoPanelProps {
   combinationInfo: CombinationInfo | null;
@@ -13,15 +14,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({ combinationInfo, settings 
 
   if (!combinationInfo) {
     return (
-      <div className="mb-6 bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+      <Card className="mb-6">
         <div className="text-sm text-gray-400 mb-3 font-medium">{t('current')}</div>
         <div className="text-sm text-gray-300">Loading...</div>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="mb-6 bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+    <Card className="mb-6">
       <div className="text-sm text-gray-400 mb-3 font-medium">{t('current')}</div>
       <div className="grid grid-cols-1 gap-2 text-sm">
         <div className="flex justify-between">
@@ -73,6 +74,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({ combinationInfo, settings 
           }
         </div>
       )}
-    </div>
+    </Card>
   );
 }; 

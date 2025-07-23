@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocalization } from '../hooks/useLocalization';
+import { Button, Card } from './ui';
 
 interface TimerProps {
   timeInSeconds: number;
@@ -102,15 +103,16 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-black/20 backdrop-blur-md rounded-3xl p-8 w-full max-w-md shadow-2xl border border-white/10">
+      <Card className="w-full max-w-md p-8">
         {/* Заголовок таймера */}
         <div className="flex items-center mb-8">
-          <button 
+          <Button 
             onClick={onClose}
-            className="text-blue-400 hover:text-blue-300 font-medium text-base px-3 py-2 rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200 backdrop-blur-sm"
+            variant="outline"
+            size="sm"
           >
             {t('back')}
-          </button>
+          </Button>
           <h2 className="text-xl font-bold ml-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{title}</h2>
         </div>
         
@@ -147,18 +149,22 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
         
         {/* Кнопки управления */}
         <div className="flex gap-4 mb-6">
-          <button 
+          <Button 
             onClick={toggleTimer}
-            className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 active:scale-95 rounded-2xl text-white font-semibold transition-all duration-200 shadow-lg shadow-blue-500/25"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
             {timerState.isRunning ? t('pause') : t('start')}
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={resetTimer}
-            className="flex-1 py-4 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 active:scale-95 rounded-2xl text-white font-semibold transition-all duration-200"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             {t('reset')}
-          </button>
+          </Button>
         </div>
         
         {/* Прогресс бар */}
@@ -168,7 +174,7 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
             style={{ width: `${progressPercent * 100}%` }}
           />
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

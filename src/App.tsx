@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import { Timer, SettingsForm, InfoPanel, ResultsPanel } from './components';
+import { Button, Card } from './components/ui';
 import { useLocalization, useSettings, useData } from './hooks';
 import { getAppVersion } from './utils/version';
 import { getBaseTime, loadTemperatureMultipliers } from './utils/filmdev-utils';
@@ -131,26 +132,30 @@ function App() {
         </div>
 
         {/* Settings Form */}
-        <SettingsForm
-          settings={settings}
-          saveSettings={saveSettings}
-          films={films}
-          developers={developers}
-          availableDilutions={availableDilutions}
-          availableISOs={availableISOs}
-          availableTemperatures={availableTemperatures}
-        />
+        <Card className="mb-6">
+          <SettingsForm
+            settings={settings}
+            saveSettings={saveSettings}
+            films={films}
+            developers={developers}
+            availableDilutions={availableDilutions}
+            availableISOs={availableISOs}
+            availableTemperatures={availableTemperatures}
+          />
+        </Card>
 
         {/* Information Panel */}
         <InfoPanel combinationInfo={combinationInfo} settings={settings} />
 
         {/* Calculate button */}
-        <button 
+        <Button 
           onClick={calculateTimes}
-          className="w-full py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 active:scale-95 rounded-2xl text-white text-lg font-semibold transition-all duration-200 mb-6 shadow-lg shadow-blue-500/25"
+          variant="primary"
+          size="lg"
+          className="w-full mb-6"
         >
           {t('calculate')}
-        </button>
+        </Button>
 
         {/* Results */}
         <ResultsPanel 

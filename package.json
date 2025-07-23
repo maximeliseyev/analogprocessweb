@@ -1,6 +1,6 @@
 {
   "name": "filmdevcalculator",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -22,8 +22,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "sync-version": "node scripts/sync-version.js",
+    "start": "npm run sync-version && react-scripts start",
+    "build": "npm run sync-version && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
