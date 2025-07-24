@@ -23,10 +23,14 @@ export const useData = (settings: Settings) => {
 
   const loadData = useCallback(async () => {
     try {
+      console.log('Starting to load data...');
       const [filmsData, developersData] = await Promise.all([
         loadFilmData(),
         loadDeveloperData()
       ]);
+      
+      console.log('Loaded films data:', Object.keys(filmsData).length, 'films');
+      console.log('Loaded developers data:', Object.keys(developersData).length, 'developers');
       
       setFilms(filmsData);
       setDevelopers(developersData);
