@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/filmdevcalculator/static/css/main.2e5545c5.css",
+    "main.js": "/filmdevcalculator/static/js/main.6d4904ac.js",
+    "index.html": "/filmdevcalculator/index.html",
+    "main.2e5545c5.css.map": "/filmdevcalculator/static/css/main.2e5545c5.css.map",
+    "main.6d4904ac.js.map": "/filmdevcalculator/static/js/main.6d4904ac.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2e5545c5.css",
+    "static/js/main.6d4904ac.js"
+  ]
+}
