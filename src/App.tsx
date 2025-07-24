@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Timer, SettingsForm, InfoPanel, ResultsPanel } from './components';
+import { Timer, SettingsForm, InfoPanel, ResultsPanel, DebugPanel } from './components';
 import { Button, Card } from './components/ui';
 import { useSettings, useData } from './hooks';
 import { getAppVersion } from './utils/version';
@@ -182,6 +182,13 @@ function App() {
           onClose={closeTimer}
         />
       )}
+
+      {/* Debug Panel */}
+      <DebugPanel 
+        films={films}
+        developers={developers}
+        loading={loading}
+      />
     </div>
   );
 }
