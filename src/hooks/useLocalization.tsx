@@ -22,14 +22,31 @@ export const LocalizationProvider = ({ children }: { children: ReactNode }) => {
   const loadTranslations = useCallback(async (language: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/locales/${language}.json`);
-      if (!response.ok) {
-        throw new Error(`Failed to load ${language} translations`);
+      
+      // Попробуем разные пути для загрузки переводов
+      const paths = [
+        `${process.env.PUBLIC_URL}/locales/${language}.json`,
+        `/locales/${language}.json`,
+        `./locales/${language}.json`
+      ];
+
+      for (const path of paths) {
+        try {
+          const response = await fetch(path);
+          if (response.ok) {
+            const translations = await response.json();
+            setCurrentLanguage(language);
+            setTranslations(translations);
+            setIsLoading(false);
+            console.log(`Successfully loaded ${language} translations from:`, path);
+            return;
+          }
+        } catch (error) {
+          console.warn(`Failed to load ${language} translations from ${path}:`, error);
+        }
       }
-      const translations = await response.json();
-      setCurrentLanguage(language);
-      setTranslations(translations);
-      setIsLoading(false);
+
+      throw new Error(`Failed to load ${language} translations from all paths`);
     } catch (error) {
       console.error(`Error loading ${language} translations:`, error);
       if (language !== 'en') {
