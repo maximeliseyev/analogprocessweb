@@ -132,6 +132,48 @@ The app includes a comprehensive database of:
 
 ---
 
+## 🚀 Deployment
+
+### GitHub Pages
+
+This project is automatically deployed to GitHub Pages using GitHub Actions.
+
+#### Setup Instructions:
+
+1. **Enable GitHub Pages** in your repository settings:
+   - Go to Settings → Pages
+   - Source: "GitHub Actions"
+
+2. **Push to main branch** - the workflow will automatically:
+   - Build the project
+   - Run tests
+   - Deploy to GitHub Pages
+
+3. **Access your app** at: `https://maximeliseyev.github.io/filmdevcalculator`
+
+#### Manual Deployment:
+
+```bash
+# Build the project
+npm run build
+
+# The build folder contains the production files
+# You can deploy these files to any static hosting service
+```
+
+### GitHub Actions Workflows
+
+The project includes two workflows:
+
+- **`deploy.yml`**: Builds and deploys to GitHub Pages
+- **`test.yml`**: Runs tests and generates coverage reports
+
+Both workflows trigger on:
+- Push to `main` branch
+- Pull requests to `main` branch
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
