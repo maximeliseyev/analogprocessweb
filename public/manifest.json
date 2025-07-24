@@ -1,8 +1,8 @@
 {
-  "name": "filmdevcalculator",
+  "name": "Film Develop Calculator",
   "short_name": "FilmDevCalc",
-  "description": "Calculator for film push/pull processing",
-  "start_url": "/filmdevcalculator/",
+  "description": "Calculator for developing film and push/pull processing",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#000000",
