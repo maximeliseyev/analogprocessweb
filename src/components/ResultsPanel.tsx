@@ -28,8 +28,8 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
   return (
     <div className="space-y-4">
       {results.map((result, index) => (
-        <Card key={index} className="flex items-center justify-between">
-          <div className="flex-1">
+        <Card key={index} className="flex flex-row items-center justify-between gap-4">
+          <div>
             <div className="text-gray-400 text-sm mb-2 font-medium">{result.label}</div>
             <div className="text-2xl font-bold text-white">{formatTimeDisplay(result.time)}</div>
           </div>
@@ -37,10 +37,10 @@ export const ResultsPanel: React.FC<ResultsPanelProps> = ({
             onClick={() => onStartTimer(result.time, result.label)}
             variant="primary"
             size="md"
-            className="ml-4"
+            className="flex-shrink-0"
           >
             <span className="text-lg">⏱</span>
-            <span>{t('timer')}</span>
+            <span className="ml-2">{t('timer')}</span>
           </Button>
         </Card>
       ))}

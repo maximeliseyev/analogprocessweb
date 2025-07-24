@@ -25,6 +25,20 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
 }) => {
   const { t } = useLocalization();
 
+  const filmOptions = [
+    ...Object.entries(films).map(([key, film]) => ({ value: key, label: film.name }))
+  ];
+  if (!filmOptions.some(opt => opt.value === 'custom')) {
+    filmOptions.push({ value: 'custom', label: t('manualInput') });
+  }
+
+  const developerOptions = [
+    ...Object.entries(developers).map(([key, developer]) => ({ value: key, label: developer.name }))
+  ];
+  if (!developerOptions.some(opt => opt.value === 'custom')) {
+    developerOptions.push({ value: 'custom', label: t('custom') });
+  }
+
   return (
     <>
       {/* Film setup section */}
@@ -33,10 +47,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         <Select
           value={settings.film}
           onChange={(e) => saveSettings({ film: e.target.value })}
-          options={[
-            ...Object.entries(films).map(([key, film]) => ({ value: key, label: film.name })),
-            { value: 'custom', label: t('manualInput') }
-          ]}
+          options={filmOptions}
         />
       </div>
 
@@ -46,10 +57,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         <Select
           value={settings.developer}
           onChange={(e) => saveSettings({ developer: e.target.value })}
-          options={[
-            ...Object.entries(developers).map(([key, developer]) => ({ value: key, label: developer.name })),
-            { value: 'custom', label: t('custom') }
-          ]}
+          options={developerOptions}
         />
       </div>
 

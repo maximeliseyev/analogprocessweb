@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { Timer, SettingsForm, InfoPanel, ResultsPanel } from './components';
 import { Button, Card } from './components/ui';
-import { useLocalization, useSettings, useData } from './hooks';
+import { useSettings, useData } from './hooks';
 import { getAppVersion } from './utils/version';
 import { getBaseTime, loadTemperatureMultipliers } from './utils/filmdev-utils';
 import { TimeResult, ActiveTimer } from './types';
+import { LocalizationProvider, useLocalization } from './hooks/useLocalization';
 
 function App() {
   const { t, currentLanguage, setLanguage } = useLocalization();
@@ -185,4 +186,10 @@ function App() {
   );
 }
 
-export default App;
+export default function AppWithLocalization() {
+  return (
+    <LocalizationProvider>
+      <App />
+    </LocalizationProvider>
+  );
+}

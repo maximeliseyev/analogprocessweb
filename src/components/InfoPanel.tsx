@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocalization } from '../hooks/useLocalization';
 import { Settings } from '../types';
 import { type CombinationInfo, formatTime } from '../utils/filmdev-utils';
-import { Card, Badge } from './ui';
+import { Card } from './ui';
 
 interface InfoPanelProps {
   combinationInfo: CombinationInfo | null;
