@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/filmdevcalculator/static/css/main.2e5545c5.css",
-    "main.js": "/filmdevcalculator/static/js/main.52a6cd43.js",
+    "main.css": "/filmdevcalculator/static/css/main.6ceafb8f.css",
+    "main.js": "/filmdevcalculator/static/js/main.3fb596d7.js",
     "index.html": "/filmdevcalculator/index.html",
-    "main.2e5545c5.css.map": "/filmdevcalculator/static/css/main.2e5545c5.css.map",
-    "main.52a6cd43.js.map": "/filmdevcalculator/static/js/main.52a6cd43.js.map"
+    "main.6ceafb8f.css.map": "/filmdevcalculator/static/css/main.6ceafb8f.css.map",
+    "main.3fb596d7.js.map": "/filmdevcalculator/static/js/main.3fb596d7.js.map"
   },
   "entrypoints": [
-    "static/css/main.2e5545c5.css",
-    "static/js/main.52a6cd43.js"
+    "static/css/main.6ceafb8f.css",
+    "static/js/main.3fb596d7.js"
   ]
 }
