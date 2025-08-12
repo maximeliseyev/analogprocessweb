@@ -12,16 +12,13 @@ interface PresetsScreenProps {
 
 export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate }) => {
   const { t } = useLocalization();
-  const { settings, saveSettings, loadSettings } = useSettings();
+  const { settings, saveSettings } = useSettings();
   const { 
     films, 
     developers, 
     availableDilutions, 
     availableISOs, 
-    availableTemperatures, 
-    combinationInfo, 
-    loading,
-    dataSource
+    availableTemperatures
   } = useData(settings);
   
   const [calculatedTime, setCalculatedTime] = useState<string>('--:--');

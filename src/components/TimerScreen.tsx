@@ -17,7 +17,8 @@ interface TimerState {
 
 export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate }) => {
   const { t } = useLocalization();
-  const { settings } = useSettings();
+  // useSettings hook called for side effects
+  useSettings();
   
   const [timerState, setTimerState] = useState<TimerState>({
     remainingTime: 0,
@@ -33,7 +34,7 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate }) 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  const circleCircumference = TIMER_CONFIG.CIRCLE_CIRCUMFERENCE;
+
 
   useEffect(() => {
     return () => {
@@ -111,7 +112,6 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate }) 
   };
 
   const progressPercent = timerState.remainingTime > 0 ? timerState.remainingTime / (customTime.minutes * 60 + customTime.seconds) : 0;
-  const progressOffset = circleCircumference * (1 - progressPercent);
 
   return (
     <div className="min-h-screen bg-black text-white p-4">

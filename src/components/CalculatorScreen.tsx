@@ -14,7 +14,8 @@ interface CalculatorScreenProps {
 export const CalculatorScreen: React.FC<CalculatorScreenProps> = ({ onBack, onNavigate }) => {
   const { t } = useLocalization();
   const { settings, saveSettings } = useSettings();
-  const { combinationInfo } = useData(settings);
+  // useData hook called for side effects
+  useData(settings);
   
   const [results, setResults] = useState<TimeResult[]>([]);
   const [showResults, setShowResults] = useState(false);

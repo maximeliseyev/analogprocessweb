@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Timer, DebugPanel } from './components';
+import { DebugPanel } from './components';
 import { HomeScreen, PresetsScreen, CalculatorScreen, TimerScreen } from './components';
 import { useSettings, useData } from './hooks';
 import { getAppVersion } from './utils/version';
