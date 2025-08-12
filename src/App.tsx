@@ -1,37 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Timer, SettingsForm, ResultsPanel, DebugPanel } from './components';
-import { Button, Card } from './components/ui';
+import { Timer, DebugPanel } from './components';
+import { HomeScreen, PresetsScreen, CalculatorScreen, TimerScreen } from './components';
 import { useSettings, useData } from './hooks';
 import { getAppVersion } from './utils/version';
-import { getBaseTime, loadTemperatureMultipliers } from './utils/filmdev-utils';
-import { TimeResult, ActiveTimer } from './types';
 import { LocalizationProvider, useLocalization } from './hooks/useLocalization';
 import { 
   APP_CONFIG, 
-  PROCESS_TYPES, 
-  CUSTOM_VALUES, 
   LOG_MESSAGES, 
   ERROR_LOG_MESSAGES 
 } from './constants';
 
 function App() {
   const { t, currentLanguage, setLanguage } = useLocalization();
-  const { settings, saveSettings, loadSettings } = useSettings();
-  const { 
-    films, 
-    developers, 
-    availableDilutions, 
-    availableISOs, 
-    availableTemperatures, 
-    combinationInfo, 
-    loading,
-    dataSource
-  } = useData(settings);
+  const { settings, loadSettings } = useSettings();
+  const { loading, films, developers, dataSource, combinationInfo } = useData(settings);
   
-  const [results, setResults] = useState<TimeResult[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [activeTimer, setActiveTimer] = useState<ActiveTimer | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<string>('home');
   const [appVersion, setAppVersion] = useState<string>(APP_CONFIG.VERSION);
 
   useEffect(() => {
@@ -44,71 +29,12 @@ function App() {
     });
   }, [loadSettings]);
 
-  // Обновление полей ввода базового времени при изменении комбинации
-  useEffect(() => {
-    if (combinationInfo && combinationInfo.hasData && combinationInfo.calculatedTime) {
-      const minutes = Math.floor(combinationInfo.calculatedTime / 60);
-      const seconds = Math.round(combinationInfo.calculatedTime % 60);
-      
-      if (minutes !== settings.baseMinutes || seconds !== settings.baseSeconds) {
-        saveSettings({ baseMinutes: minutes, baseSeconds: seconds });
-      }
-    }
-  }, [combinationInfo, settings.baseMinutes, settings.baseSeconds, saveSettings]);
-
-  const calculateTimes = async () => {
-    let baseTimeInSeconds: number;
-
-    if (settings.film === CUSTOM_VALUES.FILM) {
-      baseTimeInSeconds = settings.baseMinutes * 60 + settings.baseSeconds;
-    } else {
-      const baseTime = await getBaseTime(
-        settings.film,
-        settings.developer,
-        settings.dilution,
-        settings.iso
-      );
-      
-      if (baseTime !== null) {
-        const temps = await loadTemperatureMultipliers();
-        const tempMultiplier = temps[settings.temperature.toString()] || 1.0;
-        baseTimeInSeconds = baseTime * tempMultiplier;
-      } else {
-        baseTimeInSeconds = settings.baseMinutes * 60 + settings.baseSeconds;
-      }
-    }
-
-    const times: TimeResult[] = [
-      { label: "Basic time", time: baseTimeInSeconds }
-    ];
-    
-    for (let i = 1; i <= settings.steps; i++) {
-      let time;
-      if (settings.process === PROCESS_TYPES.PUSH) {
-        time = baseTimeInSeconds * Math.pow(settings.coefficient, i);
-      } else {
-        time = baseTimeInSeconds / Math.pow(settings.coefficient, i);
-      }
-      times.push({ 
-        label: settings.process === PROCESS_TYPES.PULL ? `-${i} steps` : `+${i} steps`, 
-        time 
-      });
-    }
-    
-    setResults(times);
-    setShowResults(true);
+  const handleNavigate = (screen: string) => {
+    setCurrentScreen(screen);
   };
 
-  const startTimer = (timeInSeconds: number, title: string) => {
-    setActiveTimer({ timeInSeconds, title });
-  };
-
-  const closeTimer = () => {
-    setActiveTimer(null);
-  };
-
-  const handleTimerComplete = () => {
-    console.log(LOG_MESSAGES.TIMER_COMPLETED);
+  const handleBack = () => {
+    setCurrentScreen('home');
   };
 
   if (loading) {
@@ -119,76 +45,54 @@ function App() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <div className="max-w-md mx-auto bg-black/20 backdrop-blur-sm rounded-3xl p-6 shadow-2xl border border-white/10">
-        {/* Заголовок */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-white">
-            {t('title')}
-          </h1>
-          <div className="flex gap-2">
-            <button className="text-gray-400 hover:text-white font-medium text-sm px-3 py-2 rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200 backdrop-blur-sm">
-              ⚙️
-            </button>
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'home':
+        return <HomeScreen onNavigate={handleNavigate} />;
+      case 'presets':
+        return <PresetsScreen onBack={handleBack} onNavigate={handleNavigate} />;
+      case 'calculator':
+        return <CalculatorScreen onBack={handleBack} onNavigate={handleNavigate} />;
+      case 'timer':
+        return <TimerScreen onBack={handleBack} onNavigate={handleNavigate} />;
+      case 'staging':
+        return <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">{t('staging')}</h1>
+            <p className="text-gray-400 mb-4">{t('comingSoon')}</p>
             <button 
-              onClick={() => setLanguage(currentLanguage === 'en' ? 'ru' : 'en')}
-              className="text-blue-500 hover:text-blue-400 font-medium text-sm px-3 py-2 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all duration-200 backdrop-blur-sm"
+              onClick={handleBack}
+              className="text-blue-500 hover:text-blue-400"
             >
-              {currentLanguage === 'en' ? 'RU' : 'EN'}
+              ← {t('back')}
             </button>
           </div>
-        </div>
+        </div>;
+      default:
+        return <HomeScreen onNavigate={handleNavigate} />;
+    }
+  };
 
-        {/* Settings Form */}
-        <Card className="mb-6">
-          <SettingsForm
-            settings={settings}
-            saveSettings={saveSettings}
-            films={films}
-            developers={developers}
-            availableDilutions={availableDilutions}
-            availableISOs={availableISOs}
-            availableTemperatures={availableTemperatures}
-          />
-        </Card>
-
-
-
-        {/* Calculate button */}
-        <Button 
-          onClick={calculateTimes}
-          variant="primary"
-          size="lg"
-          className="w-full mb-6"
+  return (
+    <>
+      {renderScreen()}
+      
+      {/* Language Switcher - Fixed Position */}
+      <div className="fixed top-4 right-4 z-50">
+        <button 
+          onClick={() => setLanguage(currentLanguage === 'en' ? 'ru' : 'en')}
+          className="text-blue-500 hover:text-blue-400 font-medium text-sm px-3 py-2 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all duration-200 backdrop-blur-sm bg-black/20"
         >
-          {t('calculate')}
-        </Button>
-
-        {/* Results */}
-        <ResultsPanel 
-          results={results}
-          showResults={showResults}
-          onStartTimer={startTimer}
-        />
+          {currentLanguage === 'en' ? 'RU' : 'EN'}
+        </button>
       </div>
 
       {/* Footer with version */}
-      <div className="text-center mt-8 mb-4">
-        <div className="text-xs text-gray-500">
-          {t('title')} v{appVersion}
+      <div className="fixed bottom-4 left-4 z-50">
+        <div className="text-xs text-gray-500 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
+          v{appVersion}
         </div>
       </div>
-
-      {/* Timer Component */}
-      {activeTimer && (
-        <Timer
-          timeInSeconds={activeTimer.timeInSeconds}
-          title={activeTimer.title}
-          onComplete={handleTimerComplete}
-          onClose={closeTimer}
-        />
-      )}
 
       {/* Debug Panel */}
       <DebugPanel 
@@ -198,7 +102,7 @@ function App() {
         dataSource={dataSource}
         combinationInfo={combinationInfo}
       />
-    </div>
+    </>
   );
 }
 
