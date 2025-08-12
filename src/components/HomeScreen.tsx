@@ -75,8 +75,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             </div>
           ))}
         </div>
-
-
       </div>
     </div>
   );
