@@ -17,6 +17,7 @@ export interface Settings {
 export interface TimeResult {
   label: string;
   time: number;
+  type?: 'basic' | 'step';
 }
 
 export interface ActiveTimer {

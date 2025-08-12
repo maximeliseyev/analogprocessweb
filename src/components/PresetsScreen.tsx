@@ -7,7 +7,7 @@ import { getBaseTime, loadTemperatureMultipliers, roundToQuarterMinute } from '.
 
 interface PresetsScreenProps {
   onBack: () => void;
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: string, timerData?: { time: number; title: string }) => void;
 }
 
 export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate }) => {
@@ -71,7 +71,7 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
             variant="ghost"
             size="sm"
           >
-            ← {t('back')}
+            ←
           </Button>
           <h1 className="text-xl font-bold text-white">
             {t('developmentSetup')}
@@ -115,16 +115,12 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
         {/* Navigation to Calculator */}
         <Button 
           onClick={() => onNavigate('calculator')}
-          variant="primary"
+          variant="ghost"
           size="lg"
-          className="w-full mb-6"
+          className="w-full mb-6 bg-blue-600 hover:bg-blue-700 border-0"
         >
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">🧮</span>
-              <span className="text-sm opacity-80">{t('baseTime')}</span>
-            </div>
-            <div className="text-lg font-mono">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-white">
               {isCalculating ? '...' : calculatedTime}
             </div>
           </div>
@@ -133,16 +129,12 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
         {/* Navigation to Timer */}
         <Button 
           onClick={() => onNavigate('timer')}
-          variant="secondary"
+          variant="ghost"
           size="lg"
-          className="w-full"
+          className="w-full bg-orange-600 hover:bg-orange-700 border-0"
         >
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center">
-              <span className="text-2xl mr-3">⏱️</span>
-              <span className="text-sm opacity-80">{t('baseTime')}</span>
-            </div>
-            <div className="text-lg font-mono">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-white">
               {isCalculating ? '...' : calculatedTime}
             </div>
           </div>

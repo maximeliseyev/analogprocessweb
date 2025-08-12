@@ -90,6 +90,8 @@
   "developerPresets": "Пресеты проявителей",
   "timePresets": "Пресеты времён проявки",
   "iso25": "25",
+  "tapToStartTimer": "Нажмите для запуска таймера",
+  "calculationResults": "Результаты расчёта",
   "iso50": "50",
   "iso80": "80",
   "iso100": "100",

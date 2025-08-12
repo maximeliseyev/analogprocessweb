@@ -7,6 +7,8 @@ import { TIMER_CONFIG, ANIMATION_CONFIG } from '../constants';
 interface TimerScreenProps {
   onBack: () => void;
   onNavigate: (screen: string) => void;
+  presetTime?: number;
+  presetTitle?: string;
 }
 
 interface TimerState {
@@ -15,7 +17,7 @@ interface TimerState {
   elapsedTime: number;
 }
 
-export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate }) => {
+export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, presetTime, presetTitle }) => {
   const { t } = useLocalization();
   // useSettings hook called for side effects
   useSettings();
@@ -43,6 +45,15 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate }) 
       }
     };
   }, []);
+
+  // Set preset time when component mounts
+  useEffect(() => {
+    if (presetTime) {
+      const minutes = Math.floor(presetTime / 60);
+      const seconds = Math.floor(presetTime % 60);
+      setCustomTime({ minutes, seconds });
+    }
+  }, [presetTime]);
 
   const startTimer = () => {
     if (timerState.isRunning) return;
@@ -123,7 +134,7 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate }) 
             variant="ghost"
             size="sm"
           >
-            ← {t('back')}
+            ←
           </Button>
           <h1 className="text-xl font-bold text-white">
             {t('timer')}

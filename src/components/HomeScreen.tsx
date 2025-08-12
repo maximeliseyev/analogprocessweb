@@ -3,7 +3,7 @@ import { useLocalization } from '../hooks/useLocalization';
 import { Card } from './ui';
 
 interface HomeScreenProps {
-  onNavigate: (screen: string) => void;
+  onNavigate: (screen: string, timerData?: { time: number; title: string }) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
@@ -83,12 +83,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8">
-          <div className="text-xs text-gray-500 bg-gray-800/50 rounded-full px-4 py-2 inline-block">
-            {t('darkAppearance')}
-          </div>
-        </div>
+
       </div>
     </div>
   );

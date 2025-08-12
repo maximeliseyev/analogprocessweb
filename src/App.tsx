@@ -18,6 +18,7 @@ function App() {
   
   const [currentScreen, setCurrentScreen] = useState<string>('home');
   const [appVersion, setAppVersion] = useState<string>(APP_CONFIG.VERSION);
+  const [timerPreset, setTimerPreset] = useState<{ time: number; title: string } | null>(null);
 
   useEffect(() => {
     loadSettings();
@@ -29,8 +30,13 @@ function App() {
     });
   }, [loadSettings]);
 
-  const handleNavigate = (screen: string) => {
+  const handleNavigate = (screen: string, timerData?: { time: number; title: string }) => {
     setCurrentScreen(screen);
+    if (timerData) {
+      setTimerPreset(timerData);
+    } else {
+      setTimerPreset(null);
+    }
   };
 
   const handleBack = () => {
@@ -54,7 +60,12 @@ function App() {
       case 'calculator':
         return <CalculatorScreen onBack={handleBack} onNavigate={handleNavigate} />;
       case 'timer':
-        return <TimerScreen onBack={handleBack} onNavigate={handleNavigate} />;
+        return <TimerScreen 
+          onBack={handleBack} 
+          onNavigate={handleNavigate} 
+          presetTime={timerPreset?.time}
+          presetTitle={timerPreset?.title}
+        />;
       case 'staging':
         return <div className="min-h-screen bg-black text-white flex items-center justify-center">
           <div className="text-center">

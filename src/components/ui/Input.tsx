@@ -23,7 +23,7 @@ export const Input: React.FC<InputProps> = ({
   step,
   disabled = false
 }) => {
-  const baseClasses = 'input input-bordered w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder-gray-400 focus:border-blue-500/50 focus:outline-none transition-all duration-200 hover:bg-white/8';
+  const baseClasses = 'input input-bordered w-full h-10 bg-white/5 backdrop-blur-sm border border-white/10 text-white placeholder-gray-400 focus:border-blue-500/50 focus:outline-none transition-all duration-200 hover:bg-white/8';
 
   return (
     <input
