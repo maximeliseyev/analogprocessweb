@@ -1,8 +1,8 @@
 {
   "name": "Analog Process Lab",
-      "short_name": "AnalogLab",
+      "short_name": "Analog Process",
   "description": "Calculator for developing film and push/pull processing",
-  "start_url": "/",
+  "start_url": "analogprocessweb/",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#000000",

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocalization } from '../hooks/useLocalization';
 import { useSettings } from '../hooks';
 import { Button, Card, Input } from './ui';
-import { TIMER_CONFIG, ANIMATION_CONFIG } from '../constants';
+import { TIMER_CONFIG } from '../constants';
 
 interface TimerScreenProps {
   onBack: () => void;
@@ -116,11 +116,7 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
     }
   };
 
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+
 
   const progressPercent = timerState.remainingTime > 0 ? timerState.remainingTime / (customTime.minutes * 60 + customTime.seconds) : 0;
 

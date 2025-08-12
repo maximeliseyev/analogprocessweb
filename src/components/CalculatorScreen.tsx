@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocalization } from '../hooks/useLocalization';
 import { useSettings, useData } from '../hooks';
 import { getBaseTime, loadTemperatureMultipliers, roundToQuarterMinute } from '../utils/filmdev-utils';
@@ -19,14 +19,7 @@ export const CalculatorScreen: React.FC<CalculatorScreenProps> = ({ onBack, onNa
   const [results, setResults] = useState<TimeResult[]>([]);
   const [showResults, setShowResults] = useState(false);
 
-  // Recalculate when temperature changes
-  useEffect(() => {
-    if (showResults) {
-      calculateTimes();
-    }
-  }, [settings.temperature]);
-
-  const calculateTimes = async () => {
+  const calculateTimes = useCallback(async () => {
     let baseTimeInSeconds: number;
 
     // Get base time (either from database or manual input)
@@ -71,7 +64,14 @@ export const CalculatorScreen: React.FC<CalculatorScreenProps> = ({ onBack, onNa
     
     setResults(times);
     setShowResults(true);
-  };
+  }, [settings, t]);
+
+  // Recalculate when temperature changes
+  useEffect(() => {
+    if (showResults) {
+      calculateTimes();
+    }
+  }, [settings.temperature, showResults, calculateTimes]);
 
   const startTimer = (timeInSeconds: number, title: string) => {
     // Navigate to timer with pre-filled time
