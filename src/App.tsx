@@ -18,7 +18,8 @@ function App() {
     availableISOs, 
     availableTemperatures, 
     combinationInfo, 
-    loading 
+    loading,
+    dataSource
   } = useData(settings);
   
   const [results, setResults] = useState<TimeResult[]>([]);
@@ -112,11 +113,11 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
+    <div className="min-h-screen bg-black text-white p-4">
       <div className="max-w-md mx-auto bg-black/20 backdrop-blur-sm rounded-3xl p-6 shadow-2xl border border-white/10">
         {/* Заголовок */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-white">
             {t('title')}
           </h1>
           <div className="flex gap-2">
@@ -146,7 +147,7 @@ function App() {
         </Card>
 
         {/* Information Panel */}
-        <InfoPanel combinationInfo={combinationInfo} settings={settings} />
+        <InfoPanel combinationInfo={combinationInfo} settings={settings} dataSource={dataSource} />
 
         {/* Calculate button */}
         <Button 

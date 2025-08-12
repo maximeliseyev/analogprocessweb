@@ -113,7 +113,7 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
           >
             {t('back')}
           </Button>
-          <h2 className="text-xl font-bold ml-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{title}</h2>
+          <h2 className="text-xl font-bold ml-4 text-white">{title}</h2>
         </div>
         
         {/* Круговой таймер */}

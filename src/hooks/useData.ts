@@ -20,10 +20,13 @@ export const useData = (settings: Settings) => {
   const [availableTemperatures, setAvailableTemperatures] = useState<number[]>([]);
   const [combinationInfo, setCombinationInfo] = useState<CombinationInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'external' | 'local' | 'fallback'>('external');
 
   const loadData = useCallback(async () => {
     try {
       console.log('Starting to load data...');
+      setDataSource('external');
+      
       const [filmsData, developersData] = await Promise.all([
         loadFilmData(),
         loadDeveloperData()
@@ -36,6 +39,7 @@ export const useData = (settings: Settings) => {
       setDevelopers(developersData);
     } catch (error) {
       console.error('Error loading data:', error);
+      setDataSource('fallback');
     } finally {
       setLoading(false);
     }
@@ -111,6 +115,7 @@ export const useData = (settings: Settings) => {
     availableISOs,
     availableTemperatures,
     combinationInfo,
-    loading
+    loading,
+    dataSource
   };
 }; 

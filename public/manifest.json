@@ -1,6 +1,6 @@
 {
-  "name": "Film Develop Calculator",
-  "short_name": "FilmDevCalc",
+  "name": "Analog Process Lab",
+      "short_name": "AnalogLab",
   "description": "Calculator for developing film and push/pull processing",
   "start_url": "/",
   "display": "standalone",

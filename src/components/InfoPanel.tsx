@@ -7,9 +7,10 @@ import { Card } from './ui';
 interface InfoPanelProps {
   combinationInfo: CombinationInfo | null;
   settings: Settings;
+  dataSource?: 'external' | 'local' | 'fallback';
 }
 
-export const InfoPanel: React.FC<InfoPanelProps> = ({ combinationInfo, settings }) => {
+export const InfoPanel: React.FC<InfoPanelProps> = ({ combinationInfo, settings, dataSource }) => {
   const { t } = useLocalization();
 
   if (!combinationInfo) {
@@ -72,6 +73,12 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({ combinationInfo, settings 
               ? `${t('fromDatabase')} ${combinationInfo.film?.name} + ${combinationInfo.developer?.name}`
               : t('defaultTime')
           }
+          {dataSource && (
+            <div className="mt-1">
+              {dataSource === 'external' && <span className="text-green-400">📡 {t('externalData')}</span>}
+              {dataSource === 'fallback' && <span className="text-yellow-400">⚠️ {t('localData')}</span>}
+            </div>
+          )}
         </div>
       )}
     </Card>
