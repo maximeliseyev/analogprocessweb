@@ -1,5 +1,5 @@
 {
-  "title": "Film develop calculator",
+  "title": "Analog Process Lab",
   "calculate": "Calculate",
   "back": "← Back",
   "start": "Start",
@@ -112,5 +112,7 @@
   "iso3200": "3200",
   "iso6400": "6400",
   "iso12500": "12500",
-  "version": "Version"
+  "version": "Version",
+  "externalData": "External data",
+  "localData": "Local data (fallback)"
 } 
