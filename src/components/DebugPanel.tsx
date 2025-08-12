@@ -1,13 +1,17 @@
 import React from 'react';
+import { useLocalization } from '../hooks/useLocalization';
 import { type FilmData, type DeveloperData } from '../utils/filmdev-utils';
 
 interface DebugPanelProps {
   films: FilmData;
   developers: DeveloperData;
   loading: boolean;
+  dataSource?: 'external' | 'local' | 'fallback';
+  combinationInfo?: any;
 }
 
-export const DebugPanel: React.FC<DebugPanelProps> = ({ films, developers, loading }) => {
+export const DebugPanel: React.FC<DebugPanelProps> = ({ films, developers, loading, dataSource, combinationInfo }) => {
+  const { t } = useLocalization();
   if (process.env.NODE_ENV === 'production') {
     return null; // Не показываем в продакшене
   }
@@ -19,6 +23,39 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ films, developers, loadi
         <div>Loading: {loading ? 'Yes' : 'No'}</div>
         <div>Films loaded: {Object.keys(films).length}</div>
         <div>Developers loaded: {Object.keys(developers).length}</div>
+        
+        {/* Data Source Info */}
+        {dataSource && (
+          <div className="mt-2 pt-2 border-t border-gray-600">
+            <div className="font-semibold">Data Source:</div>
+            {dataSource === 'external' && (
+              <div className="text-green-400">📡 {t('externalData')}</div>
+            )}
+            {dataSource === 'local' && (
+              <div className="text-blue-500">💾 {t('localData')}</div>
+            )}
+            {dataSource === 'fallback' && (
+              <div className="text-yellow-400">⚠️ {t('localData')} (fallback)</div>
+            )}
+          </div>
+        )}
+        
+        {/* Combination Info */}
+        {combinationInfo && (
+          <div className="mt-2 pt-2 border-t border-gray-600">
+            <div className="font-semibold">Current Combination:</div>
+            <div className="text-gray-300">
+              {combinationInfo.film?.name || 'Custom'} + {combinationInfo.developer?.name || 'Custom'}
+            </div>
+            <div className="text-gray-300">
+              {combinationInfo.dilution} @ {combinationInfo.iso} ISO, {combinationInfo.temperature}°C
+            </div>
+            <div className={`font-medium ${combinationInfo.hasData ? 'text-green-400' : 'text-red-400'}`}>
+              {combinationInfo.hasData ? t('available') : t('noData')}
+            </div>
+          </div>
+        )}
+        
         <div className="mt-2">
           <div className="font-semibold">Sample Films:</div>
           {Object.keys(films).slice(0, 3).map(key => (

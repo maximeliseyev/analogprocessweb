@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Timer, SettingsForm, InfoPanel, ResultsPanel, DebugPanel } from './components';
+import { Timer, SettingsForm, ResultsPanel, DebugPanel } from './components';
 import { Button, Card } from './components/ui';
 import { useSettings, useData } from './hooks';
 import { getAppVersion } from './utils/version';
 import { getBaseTime, loadTemperatureMultipliers } from './utils/filmdev-utils';
 import { TimeResult, ActiveTimer } from './types';
 import { LocalizationProvider, useLocalization } from './hooks/useLocalization';
+import { 
+  APP_CONFIG, 
+  PROCESS_TYPES, 
+  CUSTOM_VALUES, 
+  LOG_MESSAGES, 
+  ERROR_LOG_MESSAGES 
+} from './constants';
 
 function App() {
   const { t, currentLanguage, setLanguage } = useLocalization();
@@ -25,15 +32,15 @@ function App() {
   const [results, setResults] = useState<TimeResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [activeTimer, setActiveTimer] = useState<ActiveTimer | null>(null);
-  const [appVersion, setAppVersion] = useState<string>('2.0.0');
+  const [appVersion, setAppVersion] = useState<string>(APP_CONFIG.VERSION);
 
   useEffect(() => {
     loadSettings();
     getAppVersion().then(version => {
-      console.log('App version set to:', version);
+      console.log(LOG_MESSAGES.APP_VERSION_SET, version);
       setAppVersion(version);
     }).catch(error => {
-      console.error('Failed to load app version:', error);
+      console.error(ERROR_LOG_MESSAGES.VERSION_LOAD_FAILED, error);
     });
   }, [loadSettings]);
 
@@ -52,7 +59,7 @@ function App() {
   const calculateTimes = async () => {
     let baseTimeInSeconds: number;
 
-    if (settings.film === 'custom') {
+    if (settings.film === CUSTOM_VALUES.FILM) {
       baseTimeInSeconds = settings.baseMinutes * 60 + settings.baseSeconds;
     } else {
       const baseTime = await getBaseTime(
@@ -77,13 +84,13 @@ function App() {
     
     for (let i = 1; i <= settings.steps; i++) {
       let time;
-      if (settings.process === 'push') {
+      if (settings.process === PROCESS_TYPES.PUSH) {
         time = baseTimeInSeconds * Math.pow(settings.coefficient, i);
       } else {
         time = baseTimeInSeconds / Math.pow(settings.coefficient, i);
       }
       times.push({ 
-        label: settings.process === 'pull' ? `-${i} steps` : `+${i} steps`, 
+        label: settings.process === PROCESS_TYPES.PULL ? `-${i} steps` : `+${i} steps`, 
         time 
       });
     }
@@ -101,7 +108,7 @@ function App() {
   };
 
   const handleTimerComplete = () => {
-    console.log('Timer completed!');
+    console.log(LOG_MESSAGES.TIMER_COMPLETED);
   };
 
   if (loading) {
@@ -126,7 +133,7 @@ function App() {
             </button>
             <button 
               onClick={() => setLanguage(currentLanguage === 'en' ? 'ru' : 'en')}
-              className="text-blue-400 hover:text-blue-300 font-medium text-sm px-3 py-2 rounded-xl border border-blue-400/30 hover:border-blue-400/50 transition-all duration-200 backdrop-blur-sm"
+              className="text-blue-500 hover:text-blue-400 font-medium text-sm px-3 py-2 rounded-xl border border-blue-500/30 hover:border-blue-500/50 transition-all duration-200 backdrop-blur-sm"
             >
               {currentLanguage === 'en' ? 'RU' : 'EN'}
             </button>
@@ -146,8 +153,7 @@ function App() {
           />
         </Card>
 
-        {/* Information Panel */}
-        <InfoPanel combinationInfo={combinationInfo} settings={settings} dataSource={dataSource} />
+
 
         {/* Calculate button */}
         <Button 
@@ -189,6 +195,8 @@ function App() {
         films={films}
         developers={developers}
         loading={loading}
+        dataSource={dataSource}
+        combinationInfo={combinationInfo}
       />
     </div>
   );

@@ -3,6 +3,11 @@ import { useLocalization } from '../hooks/useLocalization';
 import { Settings } from '../types';
 import { type FilmData, type DeveloperData } from '../utils/filmdev-utils';
 import { Input, Select, Button } from './ui';
+import { 
+  FORM_LIMITS, 
+  CUSTOM_VALUES, 
+  PROCESS_TYPES 
+} from '../constants';
 
 interface SettingsFormProps {
   settings: Settings;
@@ -28,15 +33,15 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
   const filmOptions = [
     ...Object.entries(films).map(([key, film]) => ({ value: key, label: film.name }))
   ];
-  if (!filmOptions.some(opt => opt.value === 'custom')) {
-    filmOptions.push({ value: 'custom', label: t('manualInput') });
+  if (!filmOptions.some(opt => opt.value === CUSTOM_VALUES.FILM)) {
+    filmOptions.push({ value: CUSTOM_VALUES.FILM, label: t('manualInput') });
   }
 
   const developerOptions = [
     ...Object.entries(developers).map(([key, developer]) => ({ value: key, label: developer.name }))
   ];
-  if (!developerOptions.some(opt => opt.value === 'custom')) {
-    developerOptions.push({ value: 'custom', label: t('custom') });
+  if (!developerOptions.some(opt => opt.value === CUSTOM_VALUES.DEVELOPER)) {
+    developerOptions.push({ value: CUSTOM_VALUES.DEVELOPER, label: t('custom') });
   }
 
   return (
@@ -108,8 +113,8 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
             type="number"
             value={settings.baseMinutes}
             onChange={(e) => saveSettings({ baseMinutes: parseInt(e.target.value) || 0 })}
-            min={0}
-            max={59}
+            min={FORM_LIMITS.BASE_TIME.MINUTES.MIN}
+            max={FORM_LIMITS.BASE_TIME.MINUTES.MAX}
             className="w-20 text-center text-lg"
           />
           <span className="text-gray-400 text-base">{t('min')}</span>
@@ -117,8 +122,8 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
             type="number"
             value={settings.baseSeconds}
             onChange={(e) => saveSettings({ baseSeconds: parseInt(e.target.value) || 0 })}
-            min={0}
-            max={59}
+            min={FORM_LIMITS.BASE_TIME.SECONDS.MIN}
+            max={FORM_LIMITS.BASE_TIME.SECONDS.MAX}
             className="w-20 text-center text-lg"
           />
           <span className="text-gray-400 text-base">{t('sec')}</span>
@@ -131,9 +136,9 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         <Input
           type="number"
           value={settings.coefficient}
-          onChange={(e) => saveSettings({ coefficient: parseFloat(e.target.value) || 1.33 })}
-          min={0.1}
-          step={0.01}
+          onChange={(e) => saveSettings({ coefficient: parseFloat(e.target.value) || FORM_LIMITS.COEFFICIENT.DEFAULT })}
+          min={FORM_LIMITS.COEFFICIENT.MIN}
+          step={FORM_LIMITS.COEFFICIENT.STEP}
           className="text-center text-lg"
         />
       </div>
@@ -143,17 +148,17 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         <label className="block text-sm font-medium text-gray-300 mb-3">{t('process')}</label>
         <div className="flex bg-white/5 backdrop-blur-sm rounded-2xl p-1 border border-white/10">
           <Button
-            variant={settings.process === 'push' ? 'primary' : 'ghost'}
+            variant={settings.process === PROCESS_TYPES.PUSH ? 'primary' : 'ghost'}
             size="md"
-            onClick={() => saveSettings({ process: 'push' })}
+            onClick={() => saveSettings({ process: PROCESS_TYPES.PUSH })}
             className="flex-1"
           >
             {t('push')}
           </Button>
           <Button
-            variant={settings.process === 'pull' ? 'primary' : 'ghost'}
+            variant={settings.process === PROCESS_TYPES.PULL ? 'primary' : 'ghost'}
             size="md"
-            onClick={() => saveSettings({ process: 'pull' })}
+            onClick={() => saveSettings({ process: PROCESS_TYPES.PULL })}
             className="flex-1"
           >
             {t('pull')}
@@ -167,9 +172,9 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({
         <Input
           type="number"
           value={settings.steps}
-          onChange={(e) => saveSettings({ steps: parseInt(e.target.value) || 3 })}
-          min={1}
-          max={5}
+          onChange={(e) => saveSettings({ steps: parseInt(e.target.value) || FORM_LIMITS.STEPS.DEFAULT })}
+          min={FORM_LIMITS.STEPS.MIN}
+          max={FORM_LIMITS.STEPS.MAX}
           className="text-center text-lg"
         />
       </div>

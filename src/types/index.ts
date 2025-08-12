@@ -1,3 +1,5 @@
+import { DEFAULT_SETTINGS } from '../constants';
+
 export interface Settings {
   baseMinutes: number;
   baseSeconds: number;
@@ -23,16 +25,5 @@ export interface ActiveTimer {
 }
 
 export const APP_CONFIG = {
-  defaultSettings: {
-    baseMinutes: 7,
-    baseSeconds: 0,
-    coefficient: 1.33,
-    process: 'push' as const,
-    steps: 3,
-    film: 'ilford-hp5-plus',
-    developer: 'kodak-d76',
-    dilution: 'stock',
-    iso: 400,
-    temperature: 20
-  }
+  defaultSettings: DEFAULT_SETTINGS
 }; 

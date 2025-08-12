@@ -16,7 +16,7 @@ export const Badge: React.FC<BadgeProps> = ({
   const baseClasses = 'badge font-medium';
   
   const variantClasses = {
-    primary: 'badge-primary bg-blue-500/20 text-blue-400 border border-blue-400/30',
+    primary: 'badge-primary bg-blue-500/20 text-blue-500 border border-blue-500/30',
     secondary: 'badge-secondary bg-white/10 text-gray-300 border border-white/20',
     success: 'badge-success bg-green-500/20 text-green-400 border border-green-400/30',
     warning: 'badge-warning bg-yellow-500/20 text-yellow-400 border border-yellow-400/30',

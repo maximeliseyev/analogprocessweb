@@ -1,6 +1,14 @@
+import { 
+  EXTERNAL_DATA_CONFIG, 
+  FALLBACK_TEMPERATURE_MULTIPLIERS, 
+  TIME_ROUNDING,
+  LOG_MESSAGES,
+  ERROR_LOG_MESSAGES
+} from '../constants';
+
 // Константы
-const EXTERNAL_DATA_BASE_URL = 'https://raw.githubusercontent.com/maximeliseyev/filmdevelopmentdata/main';
-const FETCH_TIMEOUT = 10000; // 10 секунд таймаут
+const EXTERNAL_DATA_BASE_URL = EXTERNAL_DATA_CONFIG.BASE_URL;
+const FETCH_TIMEOUT = EXTERNAL_DATA_CONFIG.FETCH_TIMEOUT;
 
 // Функция для выполнения fetch с таймаутом
 async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise<Response> {
@@ -67,26 +75,26 @@ export interface CombinationInfo {
 export async function loadFilmData(): Promise<FilmData> {
   try {
     // Загружаем данные из внешнего репозитория
-    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}/films.json`);
+    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}${EXTERNAL_DATA_CONFIG.ENDPOINTS.FILMS}`);
     if (response.ok) {
       const data = await response.json();
-      console.log('Successfully loaded films data from external repository');
+      console.log(LOG_MESSAGES.EXTERNAL_DATA_LOADED);
       return data;
     } else {
       throw new Error(`Failed to load films data: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error loading film data from external repository:', error);
+    console.error(ERROR_LOG_MESSAGES.EXTERNAL_DATA_FAILED, error);
     // Fallback к локальным данным
     try {
       const fallbackResponse = await fetch(`${process.env.PUBLIC_URL}/data/films.json`);
       if (fallbackResponse.ok) {
         const data = await fallbackResponse.json();
-        console.log('Using fallback films data from local files');
+        console.log(LOG_MESSAGES.FALLBACK_DATA_USED);
         return data;
       }
     } catch (fallbackError) {
-      console.error('Fallback loading also failed:', fallbackError);
+      console.error(ERROR_LOG_MESSAGES.FALLBACK_DATA_FAILED, fallbackError);
     }
     return {};
   }
@@ -95,26 +103,26 @@ export async function loadFilmData(): Promise<FilmData> {
 export async function loadDeveloperData(): Promise<DeveloperData> {
   try {
     // Загружаем данные из внешнего репозитория
-    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}/developers.json`);
+    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}${EXTERNAL_DATA_CONFIG.ENDPOINTS.DEVELOPERS}`);
     if (response.ok) {
       const data = await response.json();
-      console.log('Successfully loaded developers data from external repository');
+      console.log(LOG_MESSAGES.EXTERNAL_DATA_LOADED);
       return data;
     } else {
       throw new Error(`Failed to load developers data: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error loading developer data from external repository:', error);
+    console.error(ERROR_LOG_MESSAGES.EXTERNAL_DATA_FAILED, error);
     // Fallback к локальным данным
     try {
       const fallbackResponse = await fetch(`${process.env.PUBLIC_URL}/data/developers.json`);
       if (fallbackResponse.ok) {
         const data = await fallbackResponse.json();
-        console.log('Using fallback developers data from local files');
+        console.log(LOG_MESSAGES.FALLBACK_DATA_USED);
         return data;
       }
     } catch (fallbackError) {
-      console.error('Fallback loading also failed:', fallbackError);
+      console.error(ERROR_LOG_MESSAGES.FALLBACK_DATA_FAILED, fallbackError);
     }
     return {};
   }
@@ -123,26 +131,26 @@ export async function loadDeveloperData(): Promise<DeveloperData> {
 export async function loadDevelopmentTimes(): Promise<DevelopmentTimeData> {
   try {
     // Загружаем данные из внешнего репозитория
-    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}/development-times.json`);
+    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}${EXTERNAL_DATA_CONFIG.ENDPOINTS.DEVELOPMENT_TIMES}`);
     if (response.ok) {
       const data = await response.json();
-      console.log('Successfully loaded development times data from external repository');
+      console.log(LOG_MESSAGES.EXTERNAL_DATA_LOADED);
       return data;
     } else {
       throw new Error(`Failed to load development times data: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error loading development times data from external repository:', error);
+    console.error(ERROR_LOG_MESSAGES.EXTERNAL_DATA_FAILED, error);
     // Fallback к локальным данным
     try {
       const fallbackResponse = await fetch(`${process.env.PUBLIC_URL}/data/development-times.json`);
       if (fallbackResponse.ok) {
         const data = await fallbackResponse.json();
-        console.log('Using fallback development times data from local files');
+        console.log(LOG_MESSAGES.FALLBACK_DATA_USED);
         return data;
       }
     } catch (fallbackError) {
-      console.error('Fallback loading also failed:', fallbackError);
+      console.error(ERROR_LOG_MESSAGES.FALLBACK_DATA_FAILED, fallbackError);
     }
     return {};
   }
@@ -151,37 +159,31 @@ export async function loadDevelopmentTimes(): Promise<DevelopmentTimeData> {
 export async function loadTemperatureMultipliers(): Promise<TemperatureMultipliers> {
   try {
     // Загружаем данные из внешнего репозитория
-    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}/temperature-multipliers.json`);
+    const response = await fetchWithTimeout(`${EXTERNAL_DATA_BASE_URL}${EXTERNAL_DATA_CONFIG.ENDPOINTS.TEMPERATURE_MULTIPLIERS}`);
     if (response.ok) {
       const data = await response.json();
-      console.log('Successfully loaded temperature multipliers data from external repository');
+      console.log(LOG_MESSAGES.EXTERNAL_DATA_LOADED);
       return data;
     } else {
       throw new Error(`Failed to load temperature multipliers data: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error loading temperature multipliers data from external repository:', error);
+    console.error(ERROR_LOG_MESSAGES.EXTERNAL_DATA_FAILED, error);
     // Fallback к локальным данным
     try {
       const fallbackResponse = await fetch(`${process.env.PUBLIC_URL}/data/temperature-multipliers.json`);
       if (fallbackResponse.ok) {
         const data = await fallbackResponse.json();
-        console.log('Using fallback temperature multipliers data from local files');
+        console.log(LOG_MESSAGES.FALLBACK_DATA_USED);
         return data;
       }
     } catch (fallbackError) {
-      console.error('Fallback loading also failed:', fallbackError);
+      console.error(ERROR_LOG_MESSAGES.FALLBACK_DATA_FAILED, fallbackError);
     }
     
     // Fallback к дефолтным значениям
     console.warn('Using fallback temperature multipliers');
-    return {
-      '18': 1.25,
-      '19': 1.12,
-      '20': 1.0,
-      '21': 0.89,
-      '22': 0.79
-    };
+    return FALLBACK_TEMPERATURE_MULTIPLIERS;
   }
 }
 
@@ -206,7 +208,7 @@ export async function getBaseTime(
     const time = dilutionTimes[iso.toString()];
     return time || null;
   } catch (error) {
-    console.error('Error getting base time:', error);
+    console.error(ERROR_LOG_MESSAGES.BASE_TIME_ERROR, error);
     return null;
   }
 }
@@ -226,7 +228,7 @@ export async function getAvailableDilutions(
     
     return Object.keys(developerTimes);
   } catch (error) {
-    console.error('Error getting available dilutions:', error);
+    console.error(ERROR_LOG_MESSAGES.DILUTIONS_ERROR, error);
     return [];
   }
 }
@@ -250,7 +252,7 @@ export async function getAvailableISOs(
     
     return Object.keys(dilutionTimes).map(iso => parseInt(iso));
   } catch (error) {
-    console.error('Error getting available ISOs:', error);
+    console.error(ERROR_LOG_MESSAGES.ISOS_ERROR, error);
     return [];
   }
 }
@@ -291,7 +293,7 @@ export async function getCombinationInfo(
       hasData
     };
   } catch (error) {
-    console.error('Error getting combination info:', error);
+    console.error(ERROR_LOG_MESSAGES.COMBINATION_INFO_ERROR, error);
     return {
       dilution,
       iso,
@@ -313,12 +315,12 @@ export function roundToQuarterMinute(seconds: number): string {
   let mins = Math.floor(seconds / 60);
   let secs = seconds % 60;
   
-  if (secs < 8) secs = 0;
-  else if (secs < 23) secs = 15;
-  else if (secs < 38) secs = 30;
-  else if (secs < 53) secs = 45;
+  if (secs < TIME_ROUNDING.QUARTER_MINUTE_THRESHOLDS.FIRST) secs = TIME_ROUNDING.QUARTER_MINUTE_VALUES.FIRST;
+  else if (secs < TIME_ROUNDING.QUARTER_MINUTE_THRESHOLDS.SECOND) secs = TIME_ROUNDING.QUARTER_MINUTE_VALUES.SECOND;
+  else if (secs < TIME_ROUNDING.QUARTER_MINUTE_THRESHOLDS.THIRD) secs = TIME_ROUNDING.QUARTER_MINUTE_VALUES.THIRD;
+  else if (secs < TIME_ROUNDING.QUARTER_MINUTE_THRESHOLDS.FOURTH) secs = TIME_ROUNDING.QUARTER_MINUTE_VALUES.FOURTH;
   else {
-    secs = 0;
+    secs = TIME_ROUNDING.QUARTER_MINUTE_VALUES.FIRST;
     mins += 1;
   }
   

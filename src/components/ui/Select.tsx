@@ -22,7 +22,7 @@ export const Select: React.FC<SelectProps> = ({
   className = '',
   disabled = false
 }) => {
-  const baseClasses = 'select select-bordered w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white focus:border-blue-400/50 focus:outline-none transition-all duration-200 hover:bg-white/8';
+  const baseClasses = 'select select-bordered w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white focus:border-blue-500/50 focus:outline-none transition-all duration-200 hover:bg-white/8';
 
   return (
     <select

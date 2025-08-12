@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocalization } from '../hooks/useLocalization';
 import { Button, Card } from './ui';
+import { TIMER_CONFIG, ANIMATION_CONFIG } from '../constants';
 
 interface TimerProps {
   timeInSeconds: number;
@@ -26,7 +27,7 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  const circleCircumference = 283; // 2 * π * 45
+  const circleCircumference = TIMER_CONFIG.CIRCLE_CIRCUMFERENCE;
 
   useEffect(() => {
     return () => {
@@ -55,7 +56,7 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
       if (remaining <= 0) {
         completeTimer();
       }
-    }, 100);
+    }, TIMER_CONFIG.UPDATE_INTERVAL);
   };
 
   const pauseTimer = () => {
@@ -129,17 +130,16 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
               cx="50" 
               cy="50" 
               r="45" 
-              className="fill-none stroke-gradient-to-r from-blue-400 to-cyan-400 stroke-3 stroke-linecap-round transition-all duration-100 ease-linear drop-shadow-lg" 
+              className="fill-none stroke-blue-500 stroke-3 stroke-linecap-round transition-all duration-100 ease-linear" 
               style={{
                 strokeDasharray: circleCircumference,
-                strokeDashoffset: progressOffset,
-                filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))'
+                strokeDashoffset: progressOffset
               }}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className={`text-5xl font-light text-white font-mono mb-3 ${
-              timerState.remainingTime <= 0 ? 'animate-pulse-slow' : ''
+              timerState.remainingTime <= 0 ? ANIMATION_CONFIG.PULSE_SLOW : ''
             }`}>
               {timerState.remainingTime <= 0 ? t('done') : formatTime(timerState.remainingTime)}
             </div>
@@ -168,9 +168,9 @@ const Timer: React.FC<TimerProps> = ({ timeInSeconds, title, onComplete, onClose
         </div>
         
         {/* Прогресс бар */}
-        <div className="h-3 bg-white/10 backdrop-blur-sm rounded-full overflow-hidden">
+        <div className={`h-${TIMER_CONFIG.PROGRESS_BAR_HEIGHT / 4} bg-white/10 backdrop-blur-sm rounded-full overflow-hidden`}>
           <div 
-            className="h-full bg-gradient-to-r from-blue-400 to-cyan-400 transition-all duration-100 ease-linear shadow-lg" 
+            className="h-full bg-blue-500 transition-all duration-100 ease-linear" 
             style={{ width: `${progressPercent * 100}%` }}
           />
         </div>
