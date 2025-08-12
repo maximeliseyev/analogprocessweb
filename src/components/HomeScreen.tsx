@@ -12,28 +12,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const navigationItems = [
     {
       id: 'presets',
-      icon: '⚙️',
       title: t('developmentSetup'),
       subtitle: t('developmentParameters'),
       color: 'text-blue-500'
     },
     {
       id: 'calculator',
-      icon: '🧮',
       title: t('calculator'),
       subtitle: t('timeCalculation'),
       color: 'text-orange-500'
     },
     {
       id: 'staging',
-      icon: '📋',
       title: t('staging'),
       subtitle: t('homeStagingSubtitle'),
       color: 'text-green-500'
     },
     {
       id: 'timer',
-      icon: '⏱️',
       title: t('timer'),
       subtitle: t('developmentTimer'),
       color: 'text-red-500'
@@ -63,9 +59,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             >
               <Card className="p-6 hover:bg-white/5 transition-all duration-200">
                 <div className="flex items-center space-x-4">
-                  <div className={`text-2xl ${item.color}`}>
-                    {item.icon}
-                  </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-white">
                       {item.title}

@@ -149,16 +149,6 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
           </p>
         </div>
 
-        {/* Timer Display */}
-        <div className="text-center mb-8">
-          <div className={`text-6xl font-light text-white font-mono mb-3 ${
-            timerState.remainingTime <= 0 && timerState.elapsedTime > 0 ? ANIMATION_CONFIG.PULSE_SLOW : ''
-          }`}>
-            {timerState.remainingTime > 0 ? formatTime(timerState.remainingTime) : '0:00'}
-          </div>
-          <p className="text-sm text-gray-400">{t('tapToChangeTime')}</p>
-        </div>
-
         {/* Time Input */}
         {!timerState.isRunning && (
           <Card className="mb-6">
