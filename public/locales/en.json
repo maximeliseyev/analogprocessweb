@@ -143,5 +143,18 @@
   "setTime": "Set time",
   "startTimer": "Start Timer",
   "comingSoon": "Coming soon...",
-  "developmentSetup": "Development Setup"
+  "developmentSetup": "Development Setup",
+  "agitation": "Agitation:",
+  "agitationOrwoName": "ORWO",
+  "agitationRaeName": "RAE",
+  "agitationXtolName": "XTOL",
+  "agitationFixerName": "Fixer",
+  "agitationContinuousName": "Continuous",
+  "agitationStillName": "Still",
+  "agitationContinuous": "Continuous agitation",
+  "agitationStill": "Still development",
+  "agitateFor": "Agitate for",
+  "restFor": "rest for",
+  "agitateOnceEvery": "Agitate once every",
+  "rotations": "rotations"
 } 

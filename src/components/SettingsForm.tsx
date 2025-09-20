@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocalization } from '../hooks/useLocalization';
 import { Settings } from '../types';
-import { type FilmData, type DeveloperData } from '../utils/filmdev-utils';
+import { type FilmData, type DeveloperData } from '../types';
 import { Input, Select, Button } from './ui';
 import { 
   FORM_LIMITS, 

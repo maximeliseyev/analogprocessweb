@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocalization } from '../hooks/useLocalization';
-import { useSettings } from '../hooks';
-import { Button, Card, Input } from './ui';
+import { useSettings, useData } from '../hooks';
+import { Button, AgitationVisualizer } from './ui';
 import { TIMER_CONFIG } from '../constants';
+import { getAgitationAction } from '../utils/agitation-utils';
+import { AgitationRule } from '../types';
 
 interface TimerScreenProps {
   onBack: () => void;
@@ -17,26 +19,21 @@ interface TimerState {
   elapsedTime: number;
 }
 
-export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, presetTime, presetTitle }) => {
+export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, presetTime = 0, presetTitle }) => {
   const { t } = useLocalization();
-  // useSettings hook called for side effects
-  useSettings();
+  const { settings } = useSettings();
+  const { agitationModes } = useData(settings);
   
   const [timerState, setTimerState] = useState<TimerState>({
-    remainingTime: 0,
+    remainingTime: presetTime,
     isRunning: false,
     elapsedTime: 0
   });
   
-  const [customTime, setCustomTime] = useState({
-    minutes: 0,
-    seconds: 0
-  });
+  const [agitationRule, setAgitationRule] = useState<AgitationRule | null>(null);
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
-
-
 
   useEffect(() => {
     return () => {
@@ -46,33 +43,33 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
     };
   }, []);
 
-  // Set preset time when component mounts
   useEffect(() => {
-    if (presetTime) {
-      const minutes = Math.floor(presetTime / 60);
-      const seconds = Math.floor(presetTime % 60);
-      setCustomTime({ minutes, seconds });
-    }
+    setTimerState({ remainingTime: presetTime, isRunning: false, elapsedTime: 0 });
   }, [presetTime]);
 
   const startTimer = () => {
-    if (timerState.isRunning) return;
+    if (timerState.isRunning || presetTime <= 0) return;
     
-    const totalTime = customTime.minutes * 60 + customTime.seconds;
-    if (totalTime <= 0) return;
-    
-    setTimerState(prev => ({ 
+    setTimerState((prev: TimerState) => ({ 
       ...prev, 
-      remainingTime: totalTime,
       isRunning: true 
     }));
-    startTimeRef.current = Date.now();
+    startTimeRef.current = Date.now() - timerState.elapsedTime * 1000;
     
     intervalRef.current = setInterval(() => {
       const elapsed = Math.floor((Date.now() - (startTimeRef.current || Date.now())) / 1000);
-      const remaining = Math.max(0, totalTime - elapsed);
+      const remaining = Math.max(0, presetTime - elapsed);
       
-      setTimerState(prev => ({
+      const totalMinutes = Math.floor(presetTime / 60);
+      const currentMinute = Math.floor(elapsed / 60) + 1;
+      const agitationMode = settings.agitationPreset ? agitationModes[settings.agitationPreset] : null;
+
+      if (agitationMode) {
+        const rule = getAgitationAction(currentMinute, totalMinutes, agitationMode);
+        setAgitationRule(rule);
+      }
+
+      setTimerState((prev: TimerState) => ({
         ...prev,
         remainingTime: remaining,
         elapsedTime: elapsed
@@ -87,7 +84,7 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
   const pauseTimer = () => {
     if (!timerState.isRunning) return;
     
-    setTimerState(prev => ({ ...prev, isRunning: false }));
+    setTimerState((prev: TimerState) => ({ ...prev, isRunning: false }));
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -97,15 +94,16 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
   const resetTimer = () => {
     pauseTimer();
     setTimerState({
-      remainingTime: 0,
+      remainingTime: presetTime,
       isRunning: false,
       elapsedTime: 0
     });
+    setAgitationRule(null);
   };
 
   const completeTimer = () => {
     pauseTimer();
-    setTimerState(prev => ({ ...prev, remainingTime: 0 }));
+    setTimerState((prev: TimerState) => ({ ...prev, remainingTime: 0 }));
   };
 
   const toggleTimer = () => {
@@ -116,15 +114,42 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
     }
   };
 
+  const renderAgitationInstruction = () => {
+    if (!agitationRule) return null;
 
+    const { action, parameters } = agitationRule;
+    switch (action) {
+      case 'continuous':
+        return t('agitationContinuous');
+      case 'still':
+        return t('agitationStill');
+      case 'cycle':
+        return `${t('agitateFor')} ${parameters.agitation_seconds}s, ${t('restFor')} ${parameters.rest_seconds}s`;
+      case 'periodic':
+        return `${t('agitateOnceEvery')} ${parameters.interval_seconds}s`;
+      case 'rotations':
+        return `${parameters.rotations} ${t('rotations')}`;
+      default:
+        return null;
+    }
+  };
 
-  const progressPercent = timerState.remainingTime > 0 ? timerState.remainingTime / (customTime.minutes * 60 + customTime.seconds) : 0;
+  const progress = presetTime > 0 ? (presetTime - timerState.remainingTime) / presetTime : 0;
+
+  const isAgitating = agitationRule?.action !== 'still';
+
+  const radius = 120;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - progress * circumference;
+
+  const minutes = Math.floor(timerState.remainingTime / 60);
+  const seconds = timerState.remainingTime % 60;
 
   return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-black text-white p-4 flex flex-col items-center justify-center">
+      <div className="max-w-md mx-auto w-full">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 w-full">
           <Button 
             onClick={onBack}
             variant="ghost"
@@ -138,88 +163,61 @@ export const TimerScreen: React.FC<TimerScreenProps> = ({ onBack, onNavigate, pr
           <div className="w-10"></div> {/* Spacer for centering */}
         </div>
 
-        {/* Instructions */}
-        <div className="text-center mb-8">
-          <p className="text-gray-400 text-sm mb-4">
-            {t('selectDevelopmentParametersToStartTimer')}
-          </p>
-        </div>
-
-        {/* Time Input */}
-        {!timerState.isRunning && (
-          <Card className="mb-6">
-            <div className="text-center">
-              <label className="block text-sm font-medium text-gray-300 mb-3">{t('setTime')}</label>
-              <div className="flex items-center justify-center gap-2">
-                <Input
-                  type="number"
-                  value={customTime.minutes}
-                  onChange={(e) => setCustomTime(prev => ({ ...prev, minutes: parseInt(e.target.value) || 0 }))}
-                  min={0}
-                  max={59}
-                  className="w-20 text-center text-lg"
-                  placeholder="0"
-                />
-                <span className="text-gray-400 text-base">{t('min')}</span>
-                <Input
-                  type="number"
-                  value={customTime.seconds}
-                  onChange={(e) => setCustomTime(prev => ({ ...prev, seconds: parseInt(e.target.value) || 0 }))}
-                  min={0}
-                  max={59}
-                  className="w-20 text-center text-lg"
-                  placeholder="0"
-                />
-                <span className="text-gray-400 text-base">{t('sec')}</span>
-              </div>
+        {/* Timer Circle */}
+        <div className="relative flex items-center justify-center w-full h-auto my-8">
+          <svg className="transform -rotate-90" width="300" height="300" viewBox="0 0 300 300">
+            <circle
+              cx="150"
+              cy="150"
+              r={radius}
+              stroke="rgba(255, 255, 255, 0.1)"
+              strokeWidth="15"
+              fill="transparent"
+            />
+            <circle
+              cx="150"
+              cy="150"
+              r={radius}
+              stroke={isAgitating ? '#fb923c' : '#3b82f6'} // orange-400 or blue-500
+              strokeWidth="15"
+              fill="transparent"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              style={{ transition: 'stroke-dashoffset 0.3s ease-out, stroke 0.3s ease-in-out' }}
+            />
+          </svg>
+          <div className="absolute text-center flex flex-col items-center justify-center">
+            <AgitationVisualizer isAgitating={isAgitating} />
+            <div className="text-6xl font-bold tracking-tighter">
+              {`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
             </div>
-          </Card>
-        )}
-
-        {/* Start Timer Button */}
-        {!timerState.isRunning && (customTime.minutes > 0 || customTime.seconds > 0) && (
-          <Button 
-            onClick={startTimer}
-            variant="primary"
-            size="lg"
-            className="w-full mb-6"
-          >
-            <span className="text-lg mr-2">⏱</span>
-            {t('startTimer')}
-          </Button>
-        )}
-
-        {/* Timer Controls */}
-        {timerState.isRunning && (
-          <div className="space-y-4 mb-6">
-            <div className="flex gap-4">
-              <Button 
-                onClick={toggleTimer}
-                variant="primary"
-                size="lg"
-                className="flex-1"
-              >
-                {t('pause')}
-              </Button>
-              <Button 
-                onClick={resetTimer}
-                variant="secondary"
-                size="lg"
-                className="flex-1"
-              >
-                {t('reset')}
-              </Button>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="h-3 bg-white/10 backdrop-blur-sm rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-blue-500 transition-all duration-100 ease-linear" 
-                style={{ width: `${progressPercent * 100}%` }}
-              />
+            <div className="text-gray-400 text-sm mt-2">
+              {renderAgitationInstruction()}
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Timer Controls */}
+        <div className="space-y-4 mb-6">
+          <div className="flex gap-4">
+            <Button 
+              onClick={toggleTimer}
+              variant="primary"
+              size="lg"
+              className="flex-1"
+            >
+              {timerState.isRunning ? t('pause') : t('start')}
+            </Button>
+            <Button 
+              onClick={resetTimer}
+              variant="secondary"
+              size="lg"
+              className="flex-1"
+            >
+              {t('reset')}
+            </Button>
+          </div>
+        </div>
 
         {/* Navigation */}
         <div className="space-y-3">

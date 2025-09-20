@@ -25,6 +25,19 @@ body {
   animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.arrow-container {
+  animation: rotate 2s linear infinite;
+}
+
 /* Стили для скроллбара */
 ::-webkit-scrollbar {
   width: 8px;

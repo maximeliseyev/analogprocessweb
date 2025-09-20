@@ -1,0 +1,284 @@
+{
+  "version": "1.0.0",
+  "updated": "2025-01-19",
+  "modes": {
+    "orwo": {
+      "name": "ORWO",
+      "localizedNameKey": "agitationOrwoName",
+      "description": "ORWO agitation pattern: Strong agitation at start and end",
+      "isBuiltIn": true,
+      "rules": [
+        {
+          "id": "orwo-first-minute",
+          "priority": 10,
+          "condition": {
+            "type": "first_minute",
+            "values": []
+          },
+          "action": "cycle",
+          "parameters": {
+            "agitation_seconds": 45,
+            "rest_seconds": 15
+          }
+        },
+        {
+          "id": "orwo-last-minute",
+          "priority": 10,
+          "condition": {
+            "type": "last_minute",
+            "values": []
+          },
+          "action": "cycle",
+          "parameters": {
+            "agitation_seconds": 45,
+            "rest_seconds": 15
+          }
+        },
+        {
+          "id": "orwo-default",
+          "priority": 1,
+          "condition": {
+            "type": "default",
+            "values": []
+          },
+          "action": "cycle",
+          "parameters": {
+            "agitation_seconds": 15,
+            "rest_seconds": 45
+          }
+        }
+      ]
+    },
+    "rae": {
+      "name": "RAE",
+      "localizedNameKey": "agitationRaeName",
+      "description": "RAE agitation pattern: Complex multi-phase agitation",
+      "isBuiltIn": true,
+      "rules": [
+        {
+          "id": "rae-minute-1",
+          "priority": 10,
+          "condition": {
+            "type": "exact_minutes",
+            "values": [
+              1
+            ]
+          },
+          "action": "continuous",
+          "parameters": {}
+        },
+        {
+          "id": "rae-minute-2",
+          "priority": 10,
+          "condition": {
+            "type": "exact_minutes",
+            "values": [
+              2
+            ]
+          },
+          "action": "periodic",
+          "parameters": {
+            "interval_seconds": 10
+          }
+        },
+        {
+          "id": "rae-minute-3",
+          "priority": 10,
+          "condition": {
+            "type": "exact_minutes",
+            "values": [
+              3
+            ]
+          },
+          "action": "rotations",
+          "parameters": {
+            "rotations": 2
+          }
+        },
+        {
+          "id": "rae-minutes-4-5",
+          "priority": 10,
+          "condition": {
+            "type": "minute_range",
+            "values": [
+              4,
+              5
+            ]
+          },
+          "action": "rotations",
+          "parameters": {
+            "rotations": 1
+          }
+        },
+        {
+          "id": "rae-minutes-7-10",
+          "priority": 10,
+          "condition": {
+            "type": "exact_minutes",
+            "values": [
+              7,
+              10
+            ]
+          },
+          "action": "rotations",
+          "parameters": {
+            "rotations": 1
+          }
+        },
+        {
+          "id": "rae-after-10",
+          "priority": 9,
+          "condition": {
+            "type": "after_minute",
+            "values": [
+              10
+            ]
+          },
+          "action": "rotations",
+          "parameters": {
+            "rotations": 1
+          }
+        },
+        {
+          "id": "rae-default",
+          "priority": 1,
+          "condition": {
+            "type": "default",
+            "values": []
+          },
+          "action": "still",
+          "parameters": {}
+        }
+      ]
+    },
+    "xtol": {
+      "name": "XTOL",
+      "localizedNameKey": "agitationXtolName",
+      "description": "XTOL agitation pattern: Gentle continuous cycle",
+      "isBuiltIn": true,
+      "rules": [
+        {
+          "id": "xtol-default",
+          "priority": 1,
+          "condition": {
+            "type": "default",
+            "values": []
+          },
+          "action": "cycle",
+          "parameters": {
+            "agitation_seconds": 5,
+            "rest_seconds": 25
+          }
+        }
+      ]
+    },
+    "fixer": {
+      "name": "Fixer",
+      "localizedNameKey": "agitationFixerName",
+      "description": "Standard fixer agitation: Strong initial agitation then still",
+      "isBuiltIn": true,
+      "rules": [
+        {
+          "id": "fixer-first-minute",
+          "priority": 10,
+          "condition": {
+            "type": "first_minute",
+            "values": []
+          },
+          "action": "continuous",
+          "parameters": {}
+        },
+        {
+          "id": "fixer-default",
+          "priority": 1,
+          "condition": {
+            "type": "default",
+            "values": []
+          },
+          "action": "still",
+          "parameters": {}
+        }
+      ]
+    },
+    "continuous": {
+      "name": "Continuous",
+      "localizedNameKey": "agitationContinuousName",
+      "description": "Continuous agitation throughout development",
+      "isBuiltIn": true,
+      "rules": [
+        {
+          "id": "continuous-default",
+          "priority": 1,
+          "condition": {
+            "type": "default",
+            "values": []
+          },
+          "action": "continuous",
+          "parameters": {}
+        }
+      ]
+    },
+    "still": {
+      "name": "Still",
+      "localizedNameKey": "agitationStillName",
+      "description": "No agitation - stand development",
+      "isBuiltIn": true,
+      "rules": [
+        {
+          "id": "still-default",
+          "priority": 1,
+          "condition": {
+            "type": "default",
+            "values": []
+          },
+          "action": "still",
+          "parameters": {}
+        }
+      ]
+    }
+  },
+  "enums": {
+    "agitation_actions": [
+      "continuous",
+      "still",
+      "cycle",
+      "periodic",
+      "rotations"
+    ],
+    "condition_types": [
+      "exact_minutes",
+      "minute_range",
+      "first_minute",
+      "last_minute",
+      "every_n_minutes",
+      "after_minute",
+      "default"
+    ]
+  },
+  "schema": {
+    "mode": {
+      "name": "string - Display name of the mode",
+      "localizedNameKey": "string - Localization key for the name",
+      "description": "string - Description of the agitation pattern",
+      "isBuiltIn": "boolean - Whether this is a built-in mode",
+      "rules": "array - Array of agitation rules"
+    },
+    "rule": {
+      "id": "string - Unique identifier for the rule",
+      "priority": "integer - Rule priority (higher = more important)",
+      "condition": "object - When this rule applies",
+      "action": "string - Type of agitation action",
+      "parameters": "object - Action-specific parameters"
+    },
+    "condition": {
+      "type": "string - Type of condition from condition_types enum",
+      "values": "array of integers - Condition-specific values"
+    },
+    "parameters": {
+      "agitation_seconds": "integer - Duration of agitation in seconds",
+      "rest_seconds": "integer - Duration of rest in seconds",
+      "rotations": "integer - Number of rotations",
+      "interval_seconds": "integer - Interval for periodic actions"
+    }
+  }
+}

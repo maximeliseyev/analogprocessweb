@@ -6,15 +6,14 @@ import {
   getAvailableISOs, 
   getCombinationInfo,
   loadTemperatureMultipliers,
-  type FilmData,
-  type DeveloperData,
-  type CombinationInfo
+  loadAgitationModes
 } from '../utils/filmdev-utils';
-import { Settings } from '../types';
+import { Settings, FilmData, DeveloperData, CombinationInfo, AgitationModesData } from '../types';
 
 export const useData = (settings: Settings) => {
   const [films, setFilms] = useState<FilmData>({});
   const [developers, setDevelopers] = useState<DeveloperData>({});
+  const [agitationModes, setAgitationModes] = useState<AgitationModesData>({});
   const [availableDilutions, setAvailableDilutions] = useState<string[]>([]);
   const [availableISOs, setAvailableISOs] = useState<number[]>([]);
   const [availableTemperatures, setAvailableTemperatures] = useState<number[]>([]);
@@ -27,16 +26,19 @@ export const useData = (settings: Settings) => {
       console.log('Starting to load data...');
       setDataSource('external');
       
-      const [filmsData, developersData] = await Promise.all([
+      const [filmsData, developersData, agitationModesData] = await Promise.all([
         loadFilmData(),
-        loadDeveloperData()
+        loadDeveloperData(),
+        loadAgitationModes()
       ]);
       
       console.log('Loaded films data:', Object.keys(filmsData).length, 'films');
       console.log('Loaded developers data:', Object.keys(developersData).length, 'developers');
+      console.log('Loaded agitation modes:', Object.keys(agitationModesData).length, 'modes');
       
       setFilms(filmsData);
       setDevelopers(developersData);
+      setAgitationModes(agitationModesData);
     } catch (error) {
       console.error('Error loading data:', error);
       setDataSource('fallback');
@@ -116,6 +118,7 @@ export const useData = (settings: Settings) => {
     availableTemperatures,
     combinationInfo,
     loading,
-    dataSource
+    dataSource,
+    agitationModes
   };
 }; 

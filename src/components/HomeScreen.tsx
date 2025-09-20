@@ -23,12 +23,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
       color: 'text-orange-500'
     },
     {
-      id: 'staging',
-      title: t('staging'),
-      subtitle: t('homeStagingSubtitle'),
-      color: 'text-green-500'
-    },
-    {
       id: 'timer',
       title: t('timer'),
       subtitle: t('developmentTimer'),

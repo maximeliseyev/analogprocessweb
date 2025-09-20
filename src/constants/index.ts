@@ -187,7 +187,8 @@ export const ERROR_LOG_MESSAGES = {
   BASE_TIME_ERROR: 'Error getting base time:',
   DILUTIONS_ERROR: 'Error getting available dilutions:',
   ISOS_ERROR: 'Error getting available ISOs:',
-  COMBINATION_INFO_ERROR: 'Error getting combination info:'
+  COMBINATION_INFO_ERROR: 'Error getting combination info:',
+  AGITATION_MODES_LOAD_FAILED: 'Failed to load agitation modes:'
 } as const;
 
 

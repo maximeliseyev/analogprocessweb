@@ -5,6 +5,7 @@ import {
   LOG_MESSAGES,
   ERROR_LOG_MESSAGES
 } from '../constants';
+import { AgitationModesData, CombinationInfo, DeveloperData, DevelopmentTimeData, FilmData, TemperatureMultipliers } from '../types';
 
 // Константы
 const EXTERNAL_DATA_BASE_URL = EXTERNAL_DATA_CONFIG.BASE_URL;
@@ -26,49 +27,6 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}): Promise
     clearTimeout(timeoutId);
     throw error;
   }
-}
-
-// Типы для данных
-export interface FilmData {
-  [key: string]: {
-    name: string;
-    manufacturer: string;
-    description?: string;
-    defaultISO?: number;
-  };
-}
-
-export interface DeveloperData {
-  [key: string]: {
-    name: string;
-    manufacturer: string;
-    description?: string;
-  };
-}
-
-export interface DevelopmentTimeData {
-  [key: string]: {
-    [developerKey: string]: {
-      [dilution: string]: {
-        [iso: string]: number;
-      };
-    };
-  };
-}
-
-export interface TemperatureMultipliers {
-  [temperature: string]: number;
-}
-
-export interface CombinationInfo {
-  film?: { name: string; manufacturer: string };
-  developer?: { name: string; manufacturer: string };
-  dilution: string;
-  iso: number;
-  temperature: number;
-  calculatedTime?: number;
-  formattedTime?: string;
-  hasData: boolean;
 }
 
 // Загрузка данных
@@ -184,6 +142,21 @@ export async function loadTemperatureMultipliers(): Promise<TemperatureMultiplie
     // Fallback к дефолтным значениям
     console.warn('Using fallback temperature multipliers');
     return FALLBACK_TEMPERATURE_MULTIPLIERS;
+  }
+}
+
+export async function loadAgitationModes(): Promise<AgitationModesData> {
+  try {
+    const response = await fetch(`${process.env.PUBLIC_URL}/data/agitation-modes.json`);
+    if (response.ok) {
+      const data = await response.json();
+      return data.modes;
+    } else {
+      throw new Error(`Failed to load agitation modes data: ${response.status} ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error(ERROR_LOG_MESSAGES.AGITATION_MODES_LOAD_FAILED, error);
+    return {};
   }
 }
 

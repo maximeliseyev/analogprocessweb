@@ -18,10 +18,12 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
     developers, 
     availableDilutions, 
     availableISOs, 
-    availableTemperatures
+    availableTemperatures,
+    agitationModes
   } = useData(settings);
   
   const [calculatedTime, setCalculatedTime] = useState<string>('--:--');
+  const [calculatedTimeInSeconds, setCalculatedTimeInSeconds] = useState<number>(0);
   const [isCalculating, setIsCalculating] = useState(false);
 
   // Calculate base time when settings change
@@ -30,6 +32,7 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
       if (settings.film === 'custom') {
         const totalSeconds = settings.baseMinutes * 60 + settings.baseSeconds;
         setCalculatedTime(roundToQuarterMinute(totalSeconds));
+        setCalculatedTimeInSeconds(totalSeconds);
         return;
       }
 
@@ -47,12 +50,15 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
           const tempMultiplier = temps[settings.temperature.toString()] || 1.0;
           const adjustedTime = baseTime * tempMultiplier;
           setCalculatedTime(roundToQuarterMinute(adjustedTime));
+          setCalculatedTimeInSeconds(adjustedTime);
         } else {
           setCalculatedTime('--:--');
+          setCalculatedTimeInSeconds(0);
         }
       } catch (error) {
         console.error('Error calculating base time:', error);
         setCalculatedTime('--:--');
+        setCalculatedTimeInSeconds(0);
       } finally {
         setIsCalculating(false);
       }
@@ -79,26 +85,6 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
           <div className="w-10"></div> {/* Spacer for centering */}
         </div>
 
-        {/* Segmented Control */}
-        <div className="flex bg-white/5 backdrop-blur-sm rounded-2xl p-1 border border-white/10 mb-6">
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => {}}
-            className="flex-1"
-          >
-            {t('developing')}
-          </Button>
-          <Button
-            variant="ghost"
-            size="md"
-            onClick={() => {}}
-            className="flex-1"
-          >
-            {t('fixer')}
-          </Button>
-        </div>
-
         {/* Settings Form */}
         <Card className="mb-6">
           <PresetsForm
@@ -109,31 +95,22 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({ onBack, onNavigate
             availableDilutions={availableDilutions}
             availableISOs={availableISOs}
             availableTemperatures={availableTemperatures}
+            agitationModes={agitationModes}
           />
         </Card>
 
-        {/* Navigation to Calculator */}
-        <Button 
-          onClick={() => onNavigate('calculator')}
-          variant="ghost"
-          size="lg"
-          className="w-full mb-6 bg-blue-600 hover:bg-blue-700 border-0"
-        >
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white">
-              {isCalculating ? '...' : calculatedTime}
-            </div>
-          </div>
-        </Button>
-
         {/* Navigation to Timer */}
         <Button 
-          onClick={() => onNavigate('timer')}
-          variant="ghost"
+          onClick={() => onNavigate('timer', { time: calculatedTimeInSeconds, title: 'Development' })}
+          variant="primary"
           size="lg"
-          className="w-full bg-orange-600 hover:bg-orange-700 border-0"
+          className="w-full mb-6"
+          disabled={isCalculating || calculatedTimeInSeconds === 0}
         >
           <div className="text-center">
+            <div className="text-lg font-semibold">
+              {t('goToTimer')}
+            </div>
             <div className="text-3xl font-bold text-white">
               {isCalculating ? '...' : calculatedTime}
             </div>

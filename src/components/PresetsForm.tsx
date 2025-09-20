@@ -1,7 +1,6 @@
 import React from 'react';
 import { useLocalization } from '../hooks/useLocalization';
-import { Settings } from '../types';
-import { type FilmData, type DeveloperData } from '../utils/filmdev-utils';
+import { Settings, AgitationModesData, FilmData, DeveloperData } from '../types';
 import { Input, Select } from './ui';
 
 interface PresetsFormProps {
@@ -12,6 +11,7 @@ interface PresetsFormProps {
   availableDilutions: string[];
   availableISOs: number[];
   availableTemperatures: number[];
+  agitationModes: AgitationModesData;
 }
 
 export const PresetsForm: React.FC<PresetsFormProps> = ({
@@ -21,7 +21,8 @@ export const PresetsForm: React.FC<PresetsFormProps> = ({
   developers,
   availableDilutions,
   availableISOs,
-  availableTemperatures
+  availableTemperatures,
+  agitationModes
 }) => {
   const { t } = useLocalization();
 
@@ -38,6 +39,11 @@ export const PresetsForm: React.FC<PresetsFormProps> = ({
   if (!developerOptions.some(opt => opt.value === 'custom')) {
     developerOptions.push({ value: 'custom', label: t('custom') });
   }
+
+  const agitationModeOptions = Object.entries(agitationModes).map(([key, mode]) => ({
+    value: key,
+    label: t(mode.localizedNameKey) || mode.name
+  }));
 
   return (
     <>
@@ -97,6 +103,16 @@ export const PresetsForm: React.FC<PresetsFormProps> = ({
             value: temp,
             label: t(`temp${temp}`) || `${temp}°C`
           }))}
+        />
+      </div>
+
+      {/* Agitation */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-3">{t('agitation')}</label>
+        <Select
+          value={settings.agitationPreset || ''}
+          onChange={(e) => saveSettings({ agitationPreset: e.target.value })}
+          options={agitationModeOptions}
         />
       </div>
 

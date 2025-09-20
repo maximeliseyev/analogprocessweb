@@ -66,19 +66,6 @@ function App() {
           presetTime={timerPreset?.time}
           presetTitle={timerPreset?.title}
         />;
-      case 'staging':
-        return <div className="min-h-screen bg-black text-white flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">{t('staging')}</h1>
-            <p className="text-gray-400 mb-4">{t('comingSoon')}</p>
-            <button 
-              onClick={handleBack}
-              className="text-blue-500 hover:text-blue-400"
-            >
-              ← {t('back')}
-            </button>
-          </div>
-        </div>;
       default:
         return <HomeScreen onNavigate={handleNavigate} />;
     }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocalization } from '../hooks/useLocalization';
-import { type FilmData, type DeveloperData } from '../utils/filmdev-utils';
+import { type FilmData, type DeveloperData } from '../types';
 
 interface DebugPanelProps {
   films: FilmData;

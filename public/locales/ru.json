@@ -135,5 +135,18 @@
   "setTime": "Установить время",
   "startTimer": "Запустить таймер",
   "comingSoon": "Скоро...",
-  "developmentSetup": "Настройка проявки"
+  "developmentSetup": "Настройка проявки",
+  "agitation": "Агитация:",
+  "agitationOrwoName": "ORWO",
+  "agitationRaeName": "RAE",
+  "agitationXtolName": "XTOL",
+  "agitationFixerName": "Фиксаж",
+  "agitationContinuousName": "Непрерывная",
+  "agitationStillName": "Покоя",
+  "agitationContinuous": "Непрерывная агитация",
+  "agitationStill": "Агитация в покое",
+  "agitateFor": "Агитация",
+  "restFor": "покой",
+  "agitateOnceEvery": "Агитация раз в",
+  "rotations": "переворотов"
 } 
